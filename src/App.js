@@ -11,9 +11,9 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Switch>
-          <Route exact path="/anderson/tarjeta/:id" component={AndersonPage}/>
-          <Route exact path="/anderson/sign-in" component={Login} />
-          <PrivateRoute path="/anderson" component={Dashboard} />
+          <Route exact path="/empresa/tarjeta/:id" component={AndersonPage}/>
+          <Route exact path="/empresa/sign-in" component={Login} />
+          <PrivateRoute path="/empresa" component={Dashboard} />
         </Switch>
     </BrowserRouter>
     </AuthProvider>

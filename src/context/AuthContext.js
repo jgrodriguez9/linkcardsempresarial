@@ -15,12 +15,12 @@ const AuthProvider = ({ children }) => {
     };
     
     useEffect(() => {
-      setAuth({ loading: false, data: JSON.parse(window.localStorage.getItem('authData'))});
+      setAuth({ loading: false, data: JSON.parse(window.localStorage.getItem('authLinkCardsEmpresa'))});
     }, []);
 
     useEffect(() => {
         app.auth().onAuthStateChanged(function(user) {
-            window.localStorage.setItem('authData', JSON.stringify(user));
+            window.localStorage.setItem('authLinkCardsEmpresa', JSON.stringify(user));
         });      
     }, [auth.data]);
   

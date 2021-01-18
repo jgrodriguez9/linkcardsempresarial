@@ -10,7 +10,7 @@ function Login(){
     return(
         <div className="bg-login">
             <Container>
-                <Row className="align-items-center pt-5 pt-8">
+                <Row className="align-items-center justify-content-center pt-5 pt-8">
                     <LoginForm signup={signup}/>
                 </Row>
                 {/* <Row>

@@ -23,7 +23,7 @@ function TopTarjetaList({auth, firebaseDB}){
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
-            const trabajadorDB = firebaseDB.collection('aestadisticas').where('ciudad', '==', queryData);
+            const trabajadorDB = firebaseDB.collection('lke_estadisticas').where('ciudad', '==', queryData);
             const trabajadorCollection = await trabajadorDB.get()
             setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
             //console.log(trabajadorCollection.docs)
@@ -64,7 +64,7 @@ function TopTarjetaList({auth, firebaseDB}){
     const seeTrabajador = (tarjeta, nombre) =>{
         //console.log(tarjeta)
         const trabajadorData = async () =>{
-            const trabajadorDB = firebaseDB.collection("aestadisticas")
+            const trabajadorDB = firebaseDB.collection("lke_estadisticas")
             const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', tarjeta).where("nombre", '==', nombre).orderBy('fecha').limitToLast(1).get();
             if(!trabajadorCollection.empty){
                 trabajadorCollection.forEach(doc=>{

@@ -5,11 +5,12 @@ import firebase from 'firebase/app';
 import 'firebase/auth'
 import { useHistory } from 'react-router-dom';
 import { authContext } from '../context/AuthContext';
-import { Button, Card, Col, Row } from 'react-bootstrap';
+import { Button, Card, Col, Image, Row } from 'react-bootstrap';
 import { FaFacebookSquare, FaApple, FaGoogle } from "react-icons/fa";
 import facebook from '../images/Facebook.svg';
 import apple from '../images/Apple.svg';
 import googlePlus from '../images/GooglePlus.svg';
+import logoLogin from '../images/logoLogin.svg'
 
 
 function IniciarSesion({setSignup}){
@@ -27,8 +28,6 @@ function IniciarSesion({setSignup}){
     
 
     return(
-        <Row>
-            <Col md={{ span: 6, offset: 3 }} xl={{span: 4, offset: 4}} lg={{span: 4, offset: 4}} xs="12" className="my-auto">
             <Formik initialValues={{email:'' ,password: ''}}
             validationSchema={shema}
             onSubmit={(values, { setSubmitting,setFieldValue }) => { 
@@ -41,7 +40,7 @@ function IniciarSesion({setSignup}){
                     //validamos que halla confirmado su email
                     var user = response.user;
                     setAuthData(response.user)
-                    history.push("/anderson")
+                    history.push("/empresa")
                     /* if(user.emailVerified){
                         setAuthData(response.user)
                         history.push("/")
@@ -79,8 +78,11 @@ function IniciarSesion({setSignup}){
         }) => (
             <form className="user" onSubmit={handleSubmit}>
                 
-                    <Card className="shadow-xs px-5 py-4 rounded-xl mt-8 border-0">                           
-                        <Card.Body>
+                    <Card className="shadow px-5 pb-4 pt-0 rounded-lg mt-8 border-0">                           
+                        <Card.Body className="text-center">
+                            <Image src={logoLogin} alt="logo" fluid className="w-75 m-auto"/>
+
+
                             <span className="text-danger">{message}</span> 
                             <Row>
                                 {/* <Col md="12">
@@ -99,7 +101,7 @@ function IniciarSesion({setSignup}){
                                 </Col> */}
                                 <Col md="12">
                                     <div>
-                                        <div className="form-group">
+                                        <div className="form-group my-4">
                                             <Field 
                                                 className={`${errors.email && 'error-bottom'} p-2 input-login w-100 border-top-0 border-right-0 border-left-0 border-radius-0 border-bottom-color-9 outline-0`}
                                                 name="email" 
@@ -108,7 +110,7 @@ function IniciarSesion({setSignup}){
                                             />
                                             { errors.email && <div className="invalid-feedback d-block">{errors.email}</div> }  
                                         </div>
-                                        <div className="form-group">
+                                        <div className="form-group mb-5">
                                             <Field 
                                                 className={`${errors.password && 'error-bottom'} p-2 input-login w-100 border-top-0 border-right-0 border-left-0 border-radius-0 border-bottom-color-9 outline-0`}
                                                 name="password" 
@@ -133,9 +135,7 @@ function IniciarSesion({setSignup}){
                 </form> 
             
             )}
-            </Formik>                                     
-        </Col> 
-        </Row>        
+            </Formik>     
     )
 }
 

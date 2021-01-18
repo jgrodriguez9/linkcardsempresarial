@@ -20,7 +20,7 @@ function TarjetaList({auth, firebaseDB}){
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
-            const trabajadorDB = firebaseDB.collection('atrabajador').orderBy(orderBy);
+            const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy);
             const trabajadorCollection = await trabajadorDB.limit(10).get()
             setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
             //console.log(trabajadorCollection.docs)
@@ -42,7 +42,7 @@ function TarjetaList({auth, firebaseDB}){
 
     const verTrabajador = (tarjeta) =>{
         //console.log(tarjeta)
-        history.push(`/anderson/tarjetas/value?tarjeta=${tarjeta}`)
+        history.push(`/empresa/tarjetas/value?tarjeta=${tarjeta}`)
     }
 
     const next = e =>{
@@ -50,7 +50,7 @@ function TarjetaList({auth, firebaseDB}){
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
-            const trabajadorDB = firebaseDB.collection('atrabajador').orderBy(orderBy).startAfter(lastItem.data()[orderBy]);
+            const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy).startAfter(lastItem.data()[orderBy]);
             const trabajadorCollection = await trabajadorDB.limit(10).get()
             setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
             trabajadorCollection.forEach(doc=>{
@@ -72,7 +72,7 @@ function TarjetaList({auth, firebaseDB}){
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
-            const trabajadorDB = firebaseDB.collection('atrabajador').orderBy(orderBy).endBefore(lastItem.data()[orderBy]);
+            const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy).endBefore(lastItem.data()[orderBy]);
             const trabajadorCollection = await trabajadorDB.limit(10).get()
             //console.log('Num results:', trabajadorCollection.docs.length);
             if(trabajadorCollection.docs.length === 10){
@@ -95,8 +95,8 @@ function TarjetaList({auth, firebaseDB}){
         console.log(tarjeta)
         console.log(index)
         const trabajadorData = async () =>{
-            const trabajadorDB = firebaseDB.collection("atrabajador")
-            const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', tarjeta).limit(1).get();
+            const trabajadorDB = firebaseDB.collection("lke_trabajador")
+            const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).where("tarjeta", '==', tarjeta).limit(1).get();
             if(!trabajadorCollection.empty){
                 //console.log(trabajadorCollection.doc())
                 trabajadorCollection.forEach(doc=>{
@@ -109,7 +109,7 @@ function TarjetaList({auth, firebaseDB}){
                 setItems(arr)                
 
                 //ponemos nuevamente la tarjeta disponible
-                const tarjetaRef = firebaseDB.collection("atarjeta").doc(tarjeta)
+                const tarjetaRef = firebaseDB.collection("lke_tarjeta").doc(tarjeta)
                 tarjetaRef.get()
                 .then(response=>{
                     //console.log('response')

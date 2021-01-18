@@ -24,7 +24,7 @@ function Statistics({auth, firebaseDB}){
     const history = useHistory();
 
     const showAddTarjetas = e =>{
-        history.push("/anderson/tarjetas/value")
+        history.push("/empresa/tarjetas/value")
     }
 
     const [ubicacionList, setUbicacionList] = useState([])
@@ -45,7 +45,9 @@ function Statistics({auth, firebaseDB}){
     useEffect(()=>{
         //total tarjetas
         const tarjetaData = async () =>{
-            const tarjetaDBStats = firebaseDB.collection("atarjeta").where('disponible', '==', true)
+            const tarjetaDBStats = firebaseDB.collection("lke_tarjeta")
+                .where('disponible', '==', true)
+                .where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
             const tarjetasCollection = await tarjetaDBStats.get()
             if(!tarjetasCollection.empty){
                 let arrTarjeta = []
@@ -53,6 +55,8 @@ function Statistics({auth, firebaseDB}){
                     arrTarjeta.push(item.data())
                 })
                 setCantidadtarjeta(arrTarjeta.length)
+                 //tarjetas activas
+                setCantidadtarjetaA(arrTarjeta.filter(elem=>elem.disponible===false).length)
             }else{
 
             }
@@ -60,21 +64,21 @@ function Statistics({auth, firebaseDB}){
 
         tarjetaData()
         //tarjetas activas
-        const tarjetaDataA = async () =>{
-            const tarjetaDBStats = firebaseDB.collection("atarjeta")
-            const tarjetasCollection = await tarjetaDBStats.where("disponible", "==", false).get()
-            if(!tarjetasCollection.empty){
-                let arrTarjeta = []
-                tarjetasCollection.forEach(item=>{
-                    arrTarjeta.push(item.data())
-                })
-                setCantidadtarjetaA(arrTarjeta.length)
-            }else{
-                setCantidadtarjetaA(0)
-            }
-        }
+        // const tarjetaDataA = async () =>{
+        //     const tarjetaDBStats = firebaseDB.collection("atarjeta")
+        //     const tarjetasCollection = await tarjetaDBStats.where("disponible", "==", false).get()
+        //     if(!tarjetasCollection.empty){
+        //         let arrTarjeta = []
+        //         tarjetasCollection.forEach(item=>{
+        //             arrTarjeta.push(item.data())
+        //         })
+        //         setCantidadtarjetaA(arrTarjeta.length)
+        //     }else{
+        //         setCantidadtarjetaA(0)
+        //     }
+        // }
 
-        tarjetaDataA()
+        // tarjetaDataA()
 
         //ciudades para las ubicaciones
         const ciudadData = async () =>{
@@ -92,9 +96,11 @@ function Statistics({auth, firebaseDB}){
         endDate.setHours(23,59,59,999)
 
         const ubicacionData = async () =>{
-            const ubicacionDB = firebaseDB.collection('aestadisticas');
+            const ubicacionDB = firebaseDB.collection('lke_estadisticas');
             if(queryData==='Todos'){
-                const ubicacionCollection = await ubicacionDB.where('fecha', '>=', startDate).where('fecha', '<=', endDate).get();
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                             .where('fecha', '>=', startDate)
+                                                             .where('fecha', '<=', endDate).get();
                 if(!ubicacionCollection.empty){
                     let arrUbicacion = [];
                     ubicacionCollection.forEach(item=>{
@@ -109,7 +115,9 @@ function Statistics({auth, firebaseDB}){
                     setUbicacionList([])                
                 }        
             }else{
-                const ubicacionCollection = await ubicacionDB.where('ciudad', '==', queryData).where('fecha', '>=', startDate).where('fecha', '<=', endDate).get();
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                             .where('ciudad', '==', queryData).where('fecha', '>=', startDate)
+                                                             .where('fecha', '<=', endDate).get();
                 if(!ubicacionCollection.empty){
                     let arrUbicacion = [];
                     ubicacionCollection.forEach(item=>{
@@ -137,8 +145,10 @@ function Statistics({auth, firebaseDB}){
 
         //listado por ubicacion de empresa
         const ubicacionData = async () =>{
-            const ubicacionDB = firebaseDB.collection('aestadisticas');
-            const ubicacionCollection = await ubicacionDB.where('fecha', '>=', startDate).where('fecha', '<=', endDate).get();
+            const ubicacionDB = firebaseDB.collection('lke_estadisticas');
+            const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                         .where('fecha', '>=', startDate)
+                                                         .where('fecha', '<=', endDate).get();
             //visualizaciones
             setVisualizacionTotal(ubicacionCollection.size)
             if(!ubicacionCollection.empty){
@@ -206,8 +216,12 @@ function Statistics({auth, firebaseDB}){
 
     const seeTrabajador = (tarjeta, nombre) =>{
         const trabajadorData = async () =>{
-            const trabajadorDB = firebaseDB.collection("aestadisticas")
-            const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', tarjeta).where("nombre", '==', nombre).orderBy('fecha').limitToLast(1).get();
+            const trabajadorDB = firebaseDB.collection("lke_estadisticas")
+            const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                           .where("tarjeta", '==', tarjeta)
+                                                           .where("nombre", '==', nombre)
+                                                           .orderBy('fecha')
+                                                           .limitToLast(1).get();
             if(!trabajadorCollection.empty){
                 trabajadorCollection.forEach(doc=>{
                     //console.log(doc)
@@ -245,9 +259,12 @@ function Statistics({auth, firebaseDB}){
         endDate.setHours(23,59,59,999)
 
         const ubicacionData = async () =>{
-            const ubicacionDB = firebaseDB.collection('aestadisticas');
+            const ubicacionDB = firebaseDB.collection('lke_estadisticas');
             if(queryData==='Todos'){
-                const ubicacionCollection = await ubicacionDB.where('fecha', '>=', startDate).where('fecha', '<=', endDate).where('empresa', '==', empresa).get();
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                             .where('fecha', '>=', startDate)
+                                                             .where('fecha', '<=', endDate)
+                                                             .where('empresa', '==', empresa).get();
                 if(!ubicacionCollection.empty){
                     let arrUbicacion = [];
                     ubicacionCollection.forEach(item=>{
@@ -263,7 +280,11 @@ function Statistics({auth, firebaseDB}){
                     setShowTarjeta(true)             
                 }        
             }else{
-                const ubicacionCollection = await ubicacionDB.where('ciudad', '==', queryData).where('fecha', '>=', startDate).where('fecha', '<=', endDate).where('empresa', '==', empresa).get();
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                                             .where('ciudad', '==', queryData)
+                                                             .where('fecha', '>=', startDate)
+                                                             .where('fecha', '<=', endDate)
+                                                             .where('empresa', '==', empresa).get();
                 if(!ubicacionCollection.empty){
                     let arrUbicacion = [];
                     ubicacionCollection.forEach(item=>{
@@ -460,7 +481,7 @@ function Statistics({auth, firebaseDB}){
             <Col md="4" xs="4">
                 <Row>
                     <Col>
-                        <Card className="border-0 bg-celeste cursor-pointer" onClick={e=>showAddTarjetas()}>
+                        <Card className="border-0 bg-blue cursor-pointer" onClick={e=>showAddTarjetas()}>
                             <Card.Body>
                                 <div className="flex">
                                     <img src={logoAddT} alt="tarjeta add" className="img-fluid mr-2 w-10p" />

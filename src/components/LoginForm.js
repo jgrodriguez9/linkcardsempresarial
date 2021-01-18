@@ -7,7 +7,7 @@ function LoginForm({signup}){
         
 
     return(
-        <Col>
+        <Col lg="5">
             {
                 !signup 
                 ? <IniciarSesion signup={signup}/>
