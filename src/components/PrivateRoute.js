@@ -24,7 +24,7 @@ function PrivateRoute({component: Component, ...rest}){
         <Route
           {...rest}
           render={(routeProps) => (
-            auth.data ? <Component {...routeProps} /> : <Redirect to="/anderson/sign-in" />
+            auth.data ? <Component {...routeProps} /> : <Redirect to="/empresa/sign-in" />
           )}
         />
     

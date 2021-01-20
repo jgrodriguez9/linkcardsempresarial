@@ -282,3 +282,10 @@ input.input-search{
     width: 1.3rem;
     height: 1.3rem;
 }
+.mh-80{
+    max-height: 80px;
+}
+.wh-120{
+    height: 120px;
+    width: 120px;
+}

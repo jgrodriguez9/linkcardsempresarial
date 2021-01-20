@@ -14,6 +14,7 @@ import TarjetaList from './TarjetaList';
 import imgAnderson from '../images/bgAnderson.png';
 import promoLinkCard from '../images/promoLinkCard.svg';
 import TopTarjetaList from './TopTarjetaList';
+import Media from './Media';
 
 function Dashboard(){
     const { setAuthData, auth } = useContext(authContext);
@@ -34,6 +35,7 @@ function Dashboard(){
                         <Route exact path="/empresa"><Statistics auth={auth} firebaseDB={firebaseDB}/></Route>
                         <Route exact path="/empresa/tarjetas"><TarjetaList auth={auth} firebaseDB={firebaseDB}/></Route>
                         <Route exact path="/empresa/tarjetas/value"><TarjetaForm auth={auth} firebaseDB={firebaseDB}/></Route>
+                        <Route exact path="/empresa/media"><Media firebaseDB={firebaseDB}/></Route>
                         <Route exact path="/empresa/top-tarjetas"><TopTarjetaList auth={auth} firebaseDB={firebaseDB}/></Route>
                     </Switch>
 

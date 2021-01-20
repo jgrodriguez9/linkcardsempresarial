@@ -25,7 +25,7 @@ function TopBar(){
                 <Nav className="mr-auto">
                     <NavLink exact to="/empresa" className="nav-link px-3 ft-top" activeClassName="active">Inicio</NavLink>
                     <NavLink exact to="/empresa/tarjetas" className="nav-link px-3 ft-top" activeClassName="active">Tarjetas</NavLink>
-                    <NavLink exact to="/empresa/tarjetas" className="nav-link px-3 ft-top" activeClassName="active">Media</NavLink>            
+                    <NavLink exact to="/empresa/media" className="nav-link px-3 ft-top" activeClassName="active">Media</NavLink>            
                     <NavLink exact to="/empresa/top-tarjetas" className="nav-link px-3 ft-top" activeClassName="active">Estadísticas</NavLink>            
                 </Nav>
                 <Nav>
