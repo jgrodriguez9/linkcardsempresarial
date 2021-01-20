@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Jumbotron, Modal, Row, Table } from 'react-bootstrap';
+import { BiDotsHorizontalRounded } from 'react-icons/bi';
+import { BsChevronLeft, BsChevronRight } from 'react-icons/bs';
 import { useHistory } from 'react-router-dom';
 import { buildTopList } from '../utils/buildTopList';
 import { groupBy } from '../utils/groupBy';
 import { numberFormat } from '../utils/numberFormat';
+import Pagination from 'rc-pagination';
+
+
+import '../css/Pagination.css'
 
 function TopTarjetaList({auth, firebaseDB}){
     const history = useHistory();
@@ -11,36 +17,29 @@ function TopTarjetaList({auth, firebaseDB}){
     const [isLoading, setLoading] = useState(true)
     const [queryData, setQueryData] = useState('Cancún')
     const [ciudades, setCiudades] = useState([])
-    const [lastItem, setLastItem] = useState(null)
-    const [nextDisabled, setNextDisabled] = useState(false)
-    const [prevDisabled, setPrevDisabled] = useState(false)
     const [trabajador, setTrabajador] = useState(null)
     const [show, setShow] = useState(false)
     const handleClose = () => setShow(false);
 
-    useEffect(()=>{
-        
+    const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage = 10;
+
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+    useEffect(()=>{        
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
             const trabajadorDB = firebaseDB.collection('lke_estadisticas').where('ciudad', '==', queryData);
             const trabajadorCollection = await trabajadorDB.get()
-            setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
-            //console.log(trabajadorCollection.docs)
             trabajadorCollection.forEach(doc=>{
-                //console.log(doc.data())
                 arr.push(doc.data())
             })
-            //console.log(arr)
             let arrGroupBy = groupBy(arr, "nombre");
             let arr1 = buildTopList(arrGroupBy);
             setItems(arr1)
             setLoading(false)
-            if(trabajadorCollection.docs.length <= 10){
-                setPrevDisabled(true)
-                setNextDisabled(true)
-            }
-            //setCiudades(citiesCollection.data().items);
         }
 
         itemsData()
@@ -148,14 +147,6 @@ function TopTarjetaList({auth, firebaseDB}){
                 <Col md="7" xs="7">
                     <h4>Vista general</h4>
                 </Col>
-                {/* <Col xs={{offset:"2", span:"3"}} md={{offset:"2", span:"3"}}>
-                    <InputGroup className="mb-3 group-search">
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <Form.Control type="text" placeholder='Buscar' className="input-search" />
-                    </InputGroup>
-                </Col> */}
             </Row>
             <Row className="mt-5 px-3 mb-2">
                 <Col>
@@ -198,7 +189,7 @@ function TopTarjetaList({auth, firebaseDB}){
                                                         </thead>
                                                         <tbody>
                                                             {
-                                                                items.map((item, i)=>(
+                                                                items.slice(indexOfFirstPost, indexOfLastPost).map((item, i)=>(
                                                                     <tr key={i}>
                                                                         <td className="text-center" width="5%">{i+1}</td>
                                                                         <td width="35%"><span className="hover-underline" onClick={e=>seeTrabajador(item.tarjeta, item.nombre)}>{`${item.nombre}`}</span></td>
@@ -213,16 +204,26 @@ function TopTarjetaList({auth, firebaseDB}){
                                                     </Table>
                                                 </Col>
                                             </Row>
-                                            {/* <Row>
+                                            <Row className="float-right">
                                                 <Col>
-                                                    <nav>
-                                                        <ul className="pagination float-right">
-                                                            <li className="page-item"><Button disabled={prevDisabled} className="page-link rounded-0" variant="link" onClick={e=>prev()}><GrPrevious /></Button></li>
-                                                            <li className="page-item"><Button disabled={nextDisabled} className="page-link rounded-0" variant="link" onClick={e=>next()}><GrNext /></Button></li>
-                                                        </ul>
-                                                    </nav>
+                                                    {
+                                                        items.length > 0 && 
+                                                        <Pagination
+                                                            onChange={page=>setCurrentPage(page)}
+                                                            current={currentPage}
+                                                            total={items.length}
+                                                            showLessItems
+                                                            showTitle
+                                                            pageSize={postsPerPage}
+                                                            className='pagination'
+                                                            prevIcon={<BsChevronLeft />}
+                                                            nextIcon={<BsChevronRight />}
+                                                            jumpPrevIcon={<BiDotsHorizontalRounded />}
+                                                            jumpNextIcon={<BiDotsHorizontalRounded />}
+                                                        />
+                                                    }
                                                 </Col>
-                                            </Row> */}
+                                            </Row>
                                         </Card.Body>
                                     </Card>
                                 </Col>

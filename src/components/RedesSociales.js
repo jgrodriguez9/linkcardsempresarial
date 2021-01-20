@@ -17,6 +17,7 @@ import tripadvisor from '../images/social/tripadvisor.svg'
 import linkedin from '../images/social/youtube.svg'
 import { toast } from 'react-toastify';
 import LoaderRequest from '../loader/LoaderRequest';
+import behance from '../images/social/behance.svg'
 
 export default function RedesSociales({firebaseDB}){
     const [enabledEdit, setEnabledEdit] = useState(false)
@@ -35,12 +36,13 @@ export default function RedesSociales({firebaseDB}){
     const [inputspotify,setInputspotify] = useState("linkcardsmx")
     const [inputtripadvisor,setInputtripadvisor] = useState("linkcardsmx")
     const [inputlinkedin,setInputlinkedin] = useState("linkcardsmx")
+    const [inputbehance,setInputbehance] = useState("linkcardsmx")
     const [isSubmiting, setSubmiting] = useState(false);
 
     const salvar = e =>{
         setSubmiting(true)
         let ar = ["site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
-                 "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin"]
+                 "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin", "behance"]
         
 
         let socialDB = firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_SUNAPI_CLIENTE)
@@ -113,6 +115,8 @@ export default function RedesSociales({firebaseDB}){
                 return inputtripadvisor;
             case "linkedin":
                 return inputlinkedin;
+            case "behance":
+                return inputbehance;
             default: 
                 return "";
         }
@@ -403,6 +407,24 @@ export default function RedesSociales({firebaseDB}){
                                                     type="text" 
                                                     value={inputtripadvisor} 
                                                     onChange={e=>setInputtripadvisor(e.target.value)}
+                                                />
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </Col>
+                                <Col xs="4" lg="4">
+                                    <ul className="list-unstyled my-4">
+                                        <li className="media border-bottom pb-3">
+                                            <Image  src={behance} alt="WathSaap" fluid className="mr-3"/>
+                                            <div className="media-body">
+                                            <h5 className="mt-0 mb-1">Behance</h5>
+                                            <strong>www.behance.com/</strong>
+                                                <input 
+                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    disabled={!enabledEdit} 
+                                                    type="text" 
+                                                    value={inputbehance} 
+                                                    onChange={e=>setInputbehance(e.target.value)}
                                                 />
                                             </div>
                                         </li>

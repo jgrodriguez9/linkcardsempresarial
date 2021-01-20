@@ -9,6 +9,8 @@ import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
+import LoaderRequest from '../loader/LoaderRequest';
+import VistaEstadisticaForm from '../components/VistaEstadisticaForm';
 
 function TarjetaForm({auth, firebaseDB}){
     //console.log(firebaseDB)
@@ -23,6 +25,8 @@ function TarjetaForm({auth, firebaseDB}){
     const [optionsTarjetas, setOptionsTarjetas] = useState([])
     const [optLoad, setOptLoad] = useState(true)
     const history = useHistory();
+    const [isSubmiting, setSubmiting] = useState(false);
+    const [vista, setVista] = useState("perfil")
 
     const [initialValues, setInitialValues] = useState({
         apellidos: '',
@@ -162,6 +166,7 @@ function TarjetaForm({auth, firebaseDB}){
 
     return(
         <>
+         {  isSubmiting && LoaderRequest() }
             <ToastContainer />
             <Row className="mt-5 px-3">
                 <Col>
@@ -185,11 +190,22 @@ function TarjetaForm({auth, firebaseDB}){
                                 <small className="text-muted mb-3 d-block">IMPRESIONES</small> */}
                             </Col>
                         </Row>
+                        {tarjetaCode && <Row className="mt-3 justify-content-center">                            
+                            <Col xs="9" lg="6">
+                                <Button variant={vista==="perfil" ? "info" : "outline-info"} block onClick={e=>setVista("perfil")}>Perfil</Button>
+                            </Col>
+                        </Row>}
+                        {tarjetaCode && <Row className="my-3 justify-content-center">
+                            <Col xs="9" lg="6">
+                                <Button variant={vista==="estadistica" ? "info" : "outline-info"} block onClick={e=>setVista("estadistica")}>Estadíticas</Button>
+                            </Col>
+                        </Row>}
                     </Card.Body>
                     </Card>
                 </Col>
                 <Col xs="8" md="8">
                     {isLoading ? <Card.Body>Loading</Card.Body> :
+                        vista === "perfil" ? 
                         <Formik
                             initialValues={initialValues}
                             validationSchema={shemaValidate}
@@ -197,6 +213,7 @@ function TarjetaForm({auth, firebaseDB}){
                                 if(tarjeta===''){
                                     setErrorsTarjeta(true)
                                 }else{
+                                    setSubmiting(true)
                                     const d = {
                                         apellidos: values.apellidos,
                                         biografia: values.biografia,
@@ -237,6 +254,7 @@ function TarjetaForm({auth, firebaseDB}){
                                                 pais: values.pais,
                                                 puesto: values.puesto,                                                    
                                             }, { merge: true });
+                                            setSubmiting(false)
                                             toast.success("Salvado correctamente", {autoClose: 3000})                                          
                                         })
                                         .catch(error=>{
@@ -258,6 +276,7 @@ function TarjetaForm({auth, firebaseDB}){
                                             firebaseDB.collection("lke_trabajador").add(d)
                                             .then(response=>{
                                                 //console.log(response)
+                                                setSubmiting(false)
                                                 toast.success("Salvado correctamente", {autoClose: 3000})
                                                 history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
                                             })
@@ -470,6 +489,8 @@ function TarjetaForm({auth, firebaseDB}){
                             </Form>
                         )}
                         </Formik>
+                        :
+                        <VistaEstadisticaForm tarjetaCode={tarjetaCode} />
                     }   
                 </Col>
             </Row>

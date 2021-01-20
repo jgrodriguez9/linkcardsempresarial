@@ -1,0 +1,31 @@
+.rc-pagination-item,
+.rc-pagination-prev,
+.rc-pagination-next{
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+.rc-pagination-disabled,
+.rc-pagination-disabled svg{
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+.rc-pagination-item-active {
+    z-index: 3;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.rc-pagination-jump-next,
+.rc-pagination-jump-prev{
+    margin-top: 5px;
+}

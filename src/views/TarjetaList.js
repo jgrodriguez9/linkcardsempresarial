@@ -1,42 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, InputGroup, Row, Table } from 'react-bootstrap';
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaSearch, FaTrashAlt } from 'react-icons/fa';
+import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
+import { BsChevronLeft, BsChevronRight, BsThreeDotsVertical } from "react-icons/bs";
+import { FaTrashAlt } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
-import { GrNext, GrPrevious } from "react-icons/gr";
-import { Last } from 'react-bootstrap/esm/PageItem';
+import Pagination from 'rc-pagination';
+import { BiDotsHorizontalRounded } from "react-icons/bi";
+
+import '../css/Pagination.css'
 
 function TarjetaList({auth, firebaseDB}){
     const history = useHistory();
     const [items, setItems] = useState([])
     const [isLoading, setLoading] = useState(true)
     const [orderBy, setOrderBy] = useState('nombre')
-    const [lastItem, setLastItem] = useState(null)
-    const [nextDisabled, setNextDisabled] = useState(false)
-    const [prevDisabled, setPrevDisabled] = useState(false)
 
-    useEffect(()=>{
-        
+    const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage = 10;
+
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+    useEffect(()=>{        
         let arr = [];
         const itemsData = async () =>{
             setLoading(true)
             const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy);
-            const trabajadorCollection = await trabajadorDB.limit(10).get()
-            setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
-            //console.log(trabajadorCollection.docs)
+            const trabajadorCollection = await trabajadorDB.get()
             trabajadorCollection.forEach(doc=>{
-                //console.log(doc.data())
                 arr.push(doc.data())
             })
             setItems(arr)
             setLoading(false)
-            setPrevDisabled(true)
-            if(trabajadorCollection.docs.length < 10){
-                setNextDisabled(true)
-            }
-            //setCiudades(citiesCollection.data().items);
         }
-
         itemsData()
     },[orderBy])
 
@@ -45,69 +40,17 @@ function TarjetaList({auth, firebaseDB}){
         history.push(`/empresa/tarjetas/value?tarjeta=${tarjeta}`)
     }
 
-    const next = e =>{
-        //console.log('ok')
-        let arr = [];
-        const itemsData = async () =>{
-            setLoading(true)
-            const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy).startAfter(lastItem.data()[orderBy]);
-            const trabajadorCollection = await trabajadorDB.limit(10).get()
-            setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
-            trabajadorCollection.forEach(doc=>{
-                //console.log(doc.data())
-                arr.push(doc.data())
-            })
-            setItems(arr)
-            setLoading(false)
-            setPrevDisabled(false)
-            if(trabajadorCollection.docs.length < 10){
-                setNextDisabled(true)
-            }else{
-                setNextDisabled(false)
-            }
-        }
-        itemsData()
-    }
-    const prev = e =>{
-        let arr = [];
-        const itemsData = async () =>{
-            setLoading(true)
-            const trabajadorDB = firebaseDB.collection('lke_trabajador').where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).orderBy(orderBy).endBefore(lastItem.data()[orderBy]);
-            const trabajadorCollection = await trabajadorDB.limit(10).get()
-            //console.log('Num results:', trabajadorCollection.docs.length);
-            if(trabajadorCollection.docs.length === 10){
-                setLastItem(trabajadorCollection.docs[trabajadorCollection.docs.length-1])
-                trabajadorCollection.forEach(doc=>{
-                    //console.log(doc.data())
-                    arr.push(doc.data())
-                })
-                setItems(arr)
-                setLoading(false)
-                setNextDisabled(false)
-            }else{
-                setPrevDisabled(true)
-            }
-        }
-        itemsData()
-    }
-
     const onHandleClickDelete = (tarjeta, index) =>{
-        console.log(tarjeta)
-        console.log(index)
         const trabajadorData = async () =>{
             const trabajadorDB = firebaseDB.collection("lke_trabajador")
             const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).where("tarjeta", '==', tarjeta).limit(1).get();
             if(!trabajadorCollection.empty){
-                //console.log(trabajadorCollection.doc())
                 trabajadorCollection.forEach(doc=>{
                     doc.ref.delete()                                       
                 })
                 let arr  = [...items]
-                //console.log(arr)
                 arr.splice(index,1)
-                //console.log(arr)
-                setItems(arr)                
-
+                setItems(arr)
                 //ponemos nuevamente la tarjeta disponible
                 const tarjetaRef = firebaseDB.collection("lke_tarjeta").doc(tarjeta)
                 tarjetaRef.get()
@@ -142,14 +85,6 @@ function TarjetaList({auth, firebaseDB}){
                 <Col md="7" xs="7">
                     <h4>Vista general</h4>
                 </Col>
-                {/* <Col xs={{offset:"2", span:"3"}} md={{offset:"2", span:"3"}}>
-                    <InputGroup className="mb-3 group-search">
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <Form.Control type="text" placeholder='Buscar' className="input-search" />
-                    </InputGroup>
-                </Col> */}
             </Row>
             <Row className="mt-5 px-3 mb-2">
                 <Col>
@@ -188,7 +123,7 @@ function TarjetaList({auth, firebaseDB}){
                                                         </thead>
                                                         <tbody>
                                                             {
-                                                                items.map((item, i)=>(
+                                                                items.slice(indexOfFirstPost, indexOfLastPost).map((item, i)=>(
                                                                     <tr key={i}>
                                                                         <td width="30%">{`${item.nombre} ${item.apellidos}`}</td>
                                                                         <td width="20%">{item.celular}</td>
@@ -210,14 +145,24 @@ function TarjetaList({auth, firebaseDB}){
                                                     </Table>
                                                 </Col>
                                             </Row>
-                                            <Row>
+                                            <Row className="float-right">
                                                 <Col>
-                                                    <nav>
-                                                        <ul className="pagination float-right">
-                                                            <li className="page-item"><Button disabled={prevDisabled} className="page-link rounded-0" variant="link" onClick={e=>prev()}><GrPrevious /></Button></li>
-                                                            <li className="page-item"><Button disabled={nextDisabled} className="page-link rounded-0" variant="link" onClick={e=>next()}><GrNext /></Button></li>
-                                                        </ul>
-                                                    </nav>
+                                                    {
+                                                        items.length > 0 && 
+                                                        <Pagination
+                                                            onChange={page=>setCurrentPage(page)}
+                                                            current={currentPage}
+                                                            total={items.length}
+                                                            showLessItems
+                                                            showTitle
+                                                            pageSize={postsPerPage}
+                                                            className='pagination'
+                                                            prevIcon={<BsChevronLeft />}
+                                                            nextIcon={<BsChevronRight />}
+                                                            jumpPrevIcon={<BiDotsHorizontalRounded />}
+                                                            jumpNextIcon={<BiDotsHorizontalRounded />}
+                                                        />
+                                                    }
                                                 </Col>
                                             </Row>
                                         </Card.Body>
