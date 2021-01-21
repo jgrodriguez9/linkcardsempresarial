@@ -82,7 +82,7 @@ function Statistics({auth, firebaseDB}){
 
         //ciudades para las ubicaciones
         const ciudadData = async () =>{
-            const citiesDB = firebaseDB.collection('aciudad').doc("ciudades");
+            const citiesDB = firebaseDB.collection('lke_ciudad').doc("ciudades");
             const citiesCollection = await citiesDB.get();
             //console.log(citiesCollection.data().items)
             setCiudades(citiesCollection.data().items);
@@ -227,7 +227,7 @@ function Statistics({auth, firebaseDB}){
                     //console.log(doc)
                     //console.log(doc.data())
                     const entity = {                            
-                        correo: doc.data().correo,
+                        email: doc.data().email,
                         nombre: doc.data().nombre,
                         ciudad: doc.data().ciudad,        
                         empresa: doc.data().empresa,
@@ -336,7 +336,7 @@ function Statistics({auth, firebaseDB}){
                         <dd className="col-sm-9">{trabajador.celular}</dd>
                     
                         <dt className="col-sm-3">Correo electrónico</dt>
-                        <dd className="col-sm-9">{trabajador.correo}</dd>
+                        <dd className="col-sm-9">{trabajador.email}</dd>
                     
                         <dt className="col-sm-3 text-truncate">Ciudad</dt>
                         <dd className="col-sm-9">{trabajador.ciudad}</dd>
@@ -344,7 +344,7 @@ function Statistics({auth, firebaseDB}){
                         <dt className="col-sm-3 text-truncate">Puesto</dt>
                         <dd className="col-sm-9">{trabajador.puesto}</dd>
 
-                        <dt className="col-sm-3 text-truncate">Empresa</dt>
+                        <dt className="col-sm-3 text-truncate">Lugar de trabajo</dt>
                         <dd className="col-sm-9">{trabajador.empresa}</dd>                        
                   </dl>
                 }
@@ -382,7 +382,7 @@ function Statistics({auth, firebaseDB}){
                                         <th>Puesto</th>
                                         <th>Ciudad</th>
                                         <th>Tarjeta</th>
-                                        <th width="5%" className="text-center">Clicks</th>
+                                        <th width="5%" className="text-center">Visitas</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -469,7 +469,7 @@ function Statistics({auth, firebaseDB}){
                 <Card className="border-0">
                     <Card.Body>
                         <div className="p-4">
-                        <span className="d-block dash-title">Total de clicks</span>
+                        <span className="d-block dash-title">Total de visitas</span>
                         <span className="d-block dash-number dash-number-2">{numberFormat(visualizacionTotal)}</span>
                         </div>
                     </Card.Body>
@@ -542,7 +542,7 @@ function Statistics({auth, firebaseDB}){
                                 topTarjetas.length === 0 ?
                                 <Row className="align-items-center">
                                     <Col xs="12">
-                                        <h6>Top 10 tarjetas con más clicks</h6> 
+                                        <h6>Top 10 tarjetas con más visitas</h6> 
                                     </Col>
                                     <Col xs="12">
                                         <p className="text-muted">No hay información a mostrar</p>
@@ -550,7 +550,7 @@ function Statistics({auth, firebaseDB}){
                                 </Row>:
                                 <Row className="align-items-center">
                                     <Col xs="12">
-                                        <h6>Top 10 tarjetas con más clicks</h6>
+                                        <h6>Top 10 tarjetas con más visitas</h6>
                                     </Col>
                                     <Col xs="12">
                                         <ListGroup variant="flush">
@@ -582,7 +582,7 @@ function Statistics({auth, firebaseDB}){
                         ubicacionList.length === 0 ?
                         <Card.Body>
                             <div className="d-flex justify-content-between">
-                                <h6>Ubicación por Hotel</h6>
+                                <h6>Ubicación por lugar de trabajo</h6>
                                 <div>
                                     {
                                         ciudades.length > 0 &&
@@ -598,8 +598,8 @@ function Statistics({auth, firebaseDB}){
                                 </div>
                             </div>
                             <div className="d-flex justify-content-between">
-                                <span className="st-title-celeste">Hotel</span>
-                                <span className="st-title-celeste">Clicks</span>
+                                <span className="st-title-celeste">Lugar de trabajo</span>
+                                <span className="st-title-celeste">Visitas</span>
                             </div>                            
                             <Row>
                                 <Col className="text-center">
@@ -609,7 +609,7 @@ function Statistics({auth, firebaseDB}){
                         </Card.Body> : 
                         <Card.Body>
                             <div className="d-flex justify-content-between">
-                                <h6>Ubicación por Hotel</h6>
+                                <h6>Ubicación por lugar de trabajo</h6>
                                 <div>
                                     {
                                         ciudades.length > 0 &&
@@ -626,8 +626,8 @@ function Statistics({auth, firebaseDB}){
                             </div>
                             
                             <div className="d-flex justify-content-between">
-                                <span className="st-title-celeste">Hotel</span>
-                                <span className="st-title-celeste">Clicks</span>
+                                <span className="st-title-celeste">Lugar de trabajo</span>
+                                <span className="st-title-celeste">Visitas</span>
                             </div>
                             {
                                 ubicacionList.map((item, i)=>(

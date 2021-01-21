@@ -1,23 +1,9 @@
 import React from 'react';
 import { Card, Col, Image, Row } from 'react-bootstrap';
-import watsaap from '../images/social/watsaap.svg'
-import site from '../images/social/site.svg'
-import facebook from '../images/social/facebook.svg'
-import twitter from '../images/social/twitter.svg'
-import instagram from '../images/social/instagram.svg'
-import tiktok from '../images/social/tiktok.svg'
-import pinterest from '../images/social/pinterest.svg'
-import youtube from '../images/social/youtube.svg'
-import telegram from '../images/social/telegram.svg'
-import sky from '../images/social/sky.svg'
-import flickr from '../images/social/flickr.svg'
-import soundcloud from '../images/social/soundcloud.svg'
-import spotify from '../images/social/spotify.svg'
-import tripadvisor from '../images/social/tripadvisor.svg'
-import linkedin from '../images/social/youtube.svg'
-import behance from '../images/social/behance.svg'
+import { getImage } from '../utils/getImage';
+import { getTexto } from '../utils/getTexto';
 
-export default function VistaEstadisticaForm({tarjetaCode}){
+export default function VistaEstadisticaForm({tarjetaCode, socialList, visitas}){
 
     return(
         <Card className="border-0">
@@ -33,7 +19,7 @@ export default function VistaEstadisticaForm({tarjetaCode}){
                 <Row className="my-5">
                     <Col>
                         <h5>Total de visitas al perfil</h5>
-                        <span className="d-block text-info ft-3rem">56</span>
+                        <span className="d-block text-info ft-3rem">{visitas}</span>
                     </Col>
                 </Row>
                 <Row className="mb-5">
@@ -42,6 +28,26 @@ export default function VistaEstadisticaForm({tarjetaCode}){
                     </Col>
                     <Col xs="12" lg="12">
                         <Row>
+                            {
+                                socialList.length === 0 ? <Col><label>No hay información que mostrar</label></Col> :
+                                socialList.map((item,i)=>(
+                                    <Col key={i} xs="4" lg="3" className="align-self-center">
+                                        <div className="d-flex flex-column float-left">
+                                            <Image src={getImage(item.icon)} alt={item.icon} fluid className="wh-5rem align-self-center" />
+                                            <label className="font-weight-bold align-self-center m-0">{getTexto(item.icon)}</label>
+                                            <label className="text-info font-weight-bold align-self-center mb-4">{item.click}</label>
+                                        </div>                               
+                                    </Col>
+                                ))
+                            }
+                            
+                            {/* <Col xs="4" lg="3" className="align-self-center">
+                                <div className="d-flex flex-column float-left">
+                                    <Image src={mail} alt="WathSaap" fluid className="wh-5rem align-self-center" />
+                                    <label className="font-weight-bold align-self-center m-0">Correo electrónico</label>
+                                    <label className="text-info font-weight-bold align-self-center mb-4">12</label>
+                                </div>                               
+                            </Col>
                             <Col xs="4" lg="3" className="align-self-center">
                                 <div className="d-flex flex-column float-left">
                                     <Image src={watsaap} alt="WathSaap" fluid className="wh-5rem align-self-center" />
@@ -156,7 +162,7 @@ export default function VistaEstadisticaForm({tarjetaCode}){
                                     <label className="font-weight-bold align-self-center m-0">Behance</label>
                                     <label className="text-info font-weight-bold align-self-center mb-4">19</label>
                                 </div>                               
-                            </Col>
+                            </Col> */}
                         </Row>
                     </Col>
                 </Row>

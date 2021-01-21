@@ -5,10 +5,13 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import Pagination from 'rc-pagination';
 import { BiDotsHorizontalRounded } from "react-icons/bi";
+import firebase from 'firebase/app'
+import 'firebase/storage'
 
 import '../css/Pagination.css'
 
 function TarjetaList({auth, firebaseDB}){
+    const storage = firebase.storage()
     const history = useHistory();
     const [items, setItems] = useState([])
     const [isLoading, setLoading] = useState(true)
@@ -46,6 +49,9 @@ function TarjetaList({auth, firebaseDB}){
             const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE).where("tarjeta", '==', tarjeta).limit(1).get();
             if(!trabajadorCollection.empty){
                 trabajadorCollection.forEach(doc=>{
+                    if(doc.data().imagen.url){
+                        storage.ref('linkcardempresarial').child(doc.data().imagen.key).delete();
+                    }
                     doc.ref.delete()                                       
                 })
                 let arr  = [...items]
@@ -102,7 +108,7 @@ function TarjetaList({auth, firebaseDB}){
                                                     <Form.Control as="select" size="sm" value={orderBy} onChange={e=>setOrderBy(e.target.value)}>
                                                         <option value="nombre">Nombre</option>
                                                         <option value="ciudad">Ubicación</option>
-                                                        <option value="empresa">Empresa</option>
+                                                        <option value="empresa">Lugar de trabajo</option>
                                                         <option value="puesto">Puesto</option>
                                                     </Form.Control>
                                                 </Col>
@@ -114,7 +120,7 @@ function TarjetaList({auth, firebaseDB}){
                                                             <tr>
                                                                 <th>Nombre</th>
                                                                 <th>Celular</th>
-                                                                <th>Empresa</th>
+                                                                <th>Lugar de trabajo</th>
                                                                 <th>Ubicación</th>
                                                                 <th>Puesto</th>
                                                                 <th></th>

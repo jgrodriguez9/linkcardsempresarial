@@ -14,13 +14,17 @@ import flickr from '../images/social/flickr.svg'
 import soundcloud from '../images/social/soundcloud.svg'
 import spotify from '../images/social/spotify.svg'
 import tripadvisor from '../images/social/tripadvisor.svg'
-import linkedin from '../images/social/youtube.svg'
+import linkedin from '../images/social/linkedin.svg'
 import { toast } from 'react-toastify';
 import LoaderRequest from '../loader/LoaderRequest';
 import behance from '../images/social/behance.svg'
+import phone from '../images/social/phone.svg'
+import mail from '../images/social/mail.svg'
 
 export default function RedesSociales({firebaseDB}){
     const [enabledEdit, setEnabledEdit] = useState(false)
+    const [inputphone,setInputphone] = useState("55 3289 9650")
+    const [inputmail,setInputmail] = useState("ejemplo@empresa.com")
     const [inputWatsaap,setInputWaatsap] = useState("55 3289 9650")
     const [inputPW,setInputPW] = useState("linkcards.com")
     const [inputFacebook,setInputFacebook] = useState("linkcardsmx")
@@ -41,7 +45,7 @@ export default function RedesSociales({firebaseDB}){
 
     const salvar = e =>{
         setSubmiting(true)
-        let ar = ["site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
+        let ar = ["mail","phone","site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
                  "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin", "behance"]
         
 
@@ -87,6 +91,10 @@ export default function RedesSociales({firebaseDB}){
         switch(elem){
             case "site":
                 return inputPW;
+            case "phone":
+                    return inputphone;
+            case "mail":
+                    return inputmail;
             case "whatsapp":
                 return inputWatsaap;
             case "facebook":
@@ -142,6 +150,41 @@ export default function RedesSociales({firebaseDB}){
                                 
                             </div>
                             <Row className="my-3">
+                                <Col xs="6" lg="4">
+                                    <ul className="list-unstyled my-4">
+                                        <li className="media border-bottom pb-3">
+                                            <Image  src={phone} alt="WathSaap" fluid className="mr-3"/>
+                                            <div className="media-body">
+                                            <h5 className="mt-0 mb-1">Teléfono</h5>
+                                            <strong>+52 1</strong> 
+                                                <input 
+                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    disabled={!enabledEdit} 
+                                                    type="text" 
+                                                    value={inputphone} 
+                                                    onChange={e=>setInputphone(e.target.value)}
+                                                />
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </Col>
+                                <Col xs="6" lg="4">
+                                    <ul className="list-unstyled my-4">
+                                        <li className="media border-bottom pb-3">
+                                            <Image  src={mail} alt="WathSaap" fluid className="mr-3"/>
+                                            <div className="media-body">
+                                            <h5 className="mt-0 mb-1">Correo electrónico</h5>
+                                                <input 
+                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    disabled={!enabledEdit} 
+                                                    type="text" 
+                                                    value={inputmail} 
+                                                    onChange={e=>setInputmail(e.target.value)}
+                                                />
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </Col>
                                 <Col xs="6" lg="4">
                                     <ul className="list-unstyled my-4">
                                         <li className="media border-bottom pb-3">

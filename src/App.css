@@ -190,7 +190,7 @@ textarea.input-default{
 }
 .imgCard{
     height: 300px;
-    object-fit: cover;
+    object-fit: contain;
 }
 .avatarCard{
     position: absolute;
@@ -314,6 +314,8 @@ input.input-search{
     background-repeat: no-repeat;
     background-size: cover;
     background-position-y: center;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
 }
 .img-desktop{
     position: absolute;
@@ -321,6 +323,7 @@ input.input-search{
     height: 200px;
     border-radius: 50%;
     top: 80%;
+    object-fit: cover;
 }
 .pt-8rem{
     padding-top: 5rem;
@@ -347,4 +350,32 @@ body{
 .img1{
     height: 200px;
     object-fit: contain;
+}
+.container-mobile{
+    border-radius: 0;
+}
+.bg-top-mobile{
+    border-radius: 0;
+    height: 14rem;
+    background-position: center;
+}
+.img-mobile{
+    width: 150px;
+    height: 150px;
+    left: 50%;
+    transform: translate(-50%);
+    object-fit: cover;
+}
+.pt-7rem{
+    padding-top: 7rem;
+}
+.edit-pic{
+    position: absolute;
+    right: 2%;
+    top: 2%;
+    background-color: #0000001a;
+    width: 25px;
+    height: 25px;
+    border-radius: 25%;
+    text-align: center;
 }

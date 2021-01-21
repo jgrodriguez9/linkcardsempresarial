@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, Image, Row } from 'react-bootstrap';
-import imgAnderson from '../images/andersons.png';
-import userDefault from '../images/userDefault.svg'
+import { Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
+import userDefault from '../images/default.png'
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
 import useQuery from '../hook/useQuery';
@@ -11,22 +10,28 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useHistory } from 'react-router-dom';
 import LoaderRequest from '../loader/LoaderRequest';
 import VistaEstadisticaForm from '../components/VistaEstadisticaForm';
+import { MdEdit } from "react-icons/md";
+import firebase from 'firebase/app'
+import 'firebase/storage'
 
 function TarjetaForm({auth, firebaseDB}){
     //console.log(firebaseDB)
+    const storage = firebase.storage()
     const [ciudades, setCiudades] = useState([])
     const [empresas, setEmpresas] = useState([])
     const [puestos, setPuestos] = useState([])
+    const [paises, setPaises] = useState([])
     const [tarjeta, setTarjeta] = useState('')
     const [errorsTarjeta, setErrorsTarjeta] = useState(false)
     const [isLoading, setLoading] = useState(true)
     const query = useQuery()
     let tarjetaCode = query.get('tarjeta');
     const [optionsTarjetas, setOptionsTarjetas] = useState([])
-    const [optLoad, setOptLoad] = useState(true)
     const history = useHistory();
     const [isSubmiting, setSubmiting] = useState(false);
     const [vista, setVista] = useState("perfil")
+    const [socialList, setSocialList] = useState([])
+    const [visitas, setVisitas] = useState(0)
 
     const [initialValues, setInitialValues] = useState({
         apellidos: '',
@@ -40,7 +45,7 @@ function TarjetaForm({auth, firebaseDB}){
         direccion_activa: false,        
         email: '',
         empresa: '',
-        imagen: '',
+        imagen: {key: '', url: ''},
         nombre: '',
         pais: '',
         puesto: '',
@@ -50,22 +55,28 @@ function TarjetaForm({auth, firebaseDB}){
     useEffect(() => {
         //console.log(tarjetaCode)        
         const ciudadData = async () =>{
-            const citiesDB = firebaseDB.collection('aciudad').doc("ciudades");
+            const citiesDB = firebaseDB.collection('lke_ciudad').doc("ciudades");
             const citiesCollection = await citiesDB.get();
             //console.log(citiesCollection.data().items)
             setCiudades(citiesCollection.data().items);
         }
         const empresaData = async () =>{
-            const empresaDB = firebaseDB.collection('aempresa').doc("empresas");
+            const empresaDB = firebaseDB.collection('lke_trabaja').doc("trabajos");
             const empresaCollection = await empresaDB.get();
             //console.log(citiesCollection.data().items)
             setEmpresas(empresaCollection.data().items);
         }
         const puestoData = async () =>{
-            const puestoDB = firebaseDB.collection('apuesto').doc("puestos");
+            const puestoDB = firebaseDB.collection('lke_puestos').doc("puestos");
             const puestoCollection = await puestoDB.get();
             //console.log(citiesCollection.data().items)
             setPuestos(puestoCollection.data().items);
+        }
+        const paisData = async () =>{
+            const paisDB = firebaseDB.collection('lke_pais').doc("paises");
+            const paisesCollection = await paisDB.get();
+            //console.log(citiesCollection.data().items)
+            setPaises(paisesCollection.data().items);
         }
 
         if(tarjetaCode){
@@ -78,6 +89,8 @@ function TarjetaForm({auth, firebaseDB}){
                     trabajadorCollection.forEach(doc=>{
                         //console.log(doc)
                         //console.log(doc.data())
+                        setSocialList(doc.data().social_list)
+                        setVisitas(doc.data().visitas)
                         const entity = {    
                             apellidos: doc.data().apellidos,
                             biografia: doc.data().biografia,
@@ -96,6 +109,7 @@ function TarjetaForm({auth, firebaseDB}){
                             puesto: doc.data().puesto,
                             tarjeta: doc.data().tarjeta    
                         }
+                        setImgUserUrl(doc.data().imagen.url)
                         setInitialValues(entity)
                     })
                 }else{
@@ -132,6 +146,7 @@ function TarjetaForm({auth, firebaseDB}){
         ciudadData()
         empresaData()
         puestoData()
+        paisData()
         
     },[]);
 
@@ -164,10 +179,37 @@ function TarjetaForm({auth, firebaseDB}){
         control: styles => ({ ...styles, borderColor: 'red' }),
       }
 
+    const [showModalImg, setShowModalImg] = useState(false)
+    const handleClose = () => setShowModalImg(false);
+    const handleShow = () => setShowModalImg(true);
+    const [imgUser, setImgUser] = useState(null)
+    const [imgUserUrl, setImgUserUrl] = useState(null)
+
+    const handleUploadImg = () =>{
+        if(imgUser.type === "image/png" || imgUser.type === "image/jpg" || imgUser.type === "image/svg" || imgUser.type === "image/jpeg"){
+            setImgUserUrl(URL.createObjectURL(imgUser))
+            setShowModalImg(false)
+        }
+    }
+
     return(
         <>
          {  isSubmiting && LoaderRequest() }
             <ToastContainer />
+            <Modal show={showModalImg} onHide={handleClose}>
+                <Modal.Header closeButton>
+                <Modal.Title>Imagen</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form>
+                        <label className="d-block">Nueva imagen</label>
+                        <input type="file" onChange={e=>setImgUser(e.target.files[0])} />
+                    </form>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={handleUploadImg}>Aceptar</Button>
+                </Modal.Footer>
+            </Modal>
             <Row className="mt-5 px-3">
                 <Col>
                     <h4 className="tittle-tarjeta">Asignar tarjeta</h4>
@@ -176,7 +218,8 @@ function TarjetaForm({auth, firebaseDB}){
             <Row className="mt-5 px-3 mb-2">
                 <Col xs="4" md="4">
                     <Card className="border-0">
-                    <Card.Img variant="top" src={userDefault} className="imgCard" />
+                    <Card.Img variant="top" src={imgUserUrl ? imgUserUrl : userDefault} className="imgCard" />
+                    <div className="edit-pic" onClick={handleShow}><MdEdit className="cursor-pointer text-primary"/></div>                    
                     <Card.Body>
                         <Row className="mt-4 text-center">
                             <Col>
@@ -215,6 +258,7 @@ function TarjetaForm({auth, firebaseDB}){
                                 }else{
                                     setSubmiting(true)
                                     const d = {
+                                        visitas: 0,
                                         apellidos: values.apellidos,
                                         biografia: values.biografia,
                                         celular: values.celular,
@@ -226,10 +270,11 @@ function TarjetaForm({auth, firebaseDB}){
                                         direccion_activa: values.direccion_activa,        
                                         email: values.email,
                                         empresa: values.empresa,
-                                        imagen: '',
+                                        imagen: {key: null, url: null},
                                         nombre: values.nombre,
                                         pais: values.pais,
                                         puesto: values.puesto,
+                                        social_list: [],
                                         tarjeta: tarjeta.trim()                                        
                                     }
                                     if(tarjetaCode){
@@ -237,25 +282,68 @@ function TarjetaForm({auth, firebaseDB}){
                                                                                .where("tarjeta", '==', tarjetaCode).limit(1).get()
                                         .then(response=>{
                                             //console.log('update')
-                                            const idDocument = response.docs[response.docs.length - 1].id;
-                                            firebaseDB.collection("lke_trabajador").doc(idDocument).set({
-                                                apellidos: values.apellidos,
-                                                biografia: values.biografia,
-                                                celular: values.celular,
-                                                ciudad: values.ciudad,
-                                                cumpleanos: values.cumpleanos,
-                                                cumpleanos_activo: values.cumpleanos_activo,
-                                                direccion: values.direccion,
-                                                direccion_activa: values.direccion_activa,        
-                                                email: values.email,
-                                                empresa: values.empresa,
-                                                imagen: '',
-                                                nombre: values.nombre,
-                                                pais: values.pais,
-                                                puesto: values.puesto,                                                    
-                                            }, { merge: true });
-                                            setSubmiting(false)
-                                            toast.success("Salvado correctamente", {autoClose: 3000})                                          
+                                            response.forEach(item=>{
+                                                let img = item.data().imagen
+                                                if(imgUser){
+                                                    if(img.url){
+                                                        //la eliminamos
+                                                        storage.ref('linkcardempresarial').child(img.key).delete();
+                                                    }
+                                                        let name = `${imgUser.name}${new Date().getTime()}`
+                                                        const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(imgUser)
+                                                        uploadTask.on("state_changed", console.log, console.error, () => {
+                                                            storage
+                                                              .ref("linkcardempresarial")
+                                                              .child(name)
+                                                              .getDownloadURL()
+                                                              .then((url) => {
+                                                                let obj = {
+                                                                    key: name,
+                                                                    url: url
+                                                                }
+                                                                    item.ref.update({
+                                                                        imagen: obj,
+                                                                        apellidos: values.apellidos,
+                                                                        biografia: values.biografia,
+                                                                        celular: values.celular,
+                                                                        ciudad: values.ciudad,
+                                                                        cumpleanos: values.cumpleanos,
+                                                                        cumpleanos_activo: values.cumpleanos_activo,
+                                                                        direccion: values.direccion,
+                                                                        direccion_activa: values.direccion_activa,
+                                                                        email: values.email,
+                                                                        empresa: values.empresa,
+                                                                        nombre: values.nombre,
+                                                                        pais: values.pais,
+                                                                        puesto: values.puesto,    
+                                                                    }).then(r=>{                                                                    
+                                                                        setSubmiting(false)
+                                                                        toast.success("Acción exitosa", {autoClose: 3000})
+                                                                    })                                                                
+                                                              });
+                                                        });
+                                                    
+                                                }else{
+                                                    item.ref.update({
+                                                        apellidos: values.apellidos,
+                                                        biografia: values.biografia,
+                                                        celular: values.celular,
+                                                        ciudad: values.ciudad,
+                                                        cumpleanos: values.cumpleanos,
+                                                        cumpleanos_activo: values.cumpleanos_activo,
+                                                        direccion: values.direccion,
+                                                        direccion_activa: values.direccion_activa,
+                                                        email: values.email,
+                                                        empresa: values.empresa,
+                                                        nombre: values.nombre,
+                                                        pais: values.pais,
+                                                        puesto: values.puesto,    
+                                                    }).then(r=>{                                                                    
+                                                        setSubmiting(false)
+                                                        toast.success("Acción exitosa", {autoClose: 3000})
+                                                    })       
+                                                }
+                                            })                                         
                                         })
                                         .catch(error=>{
                                             //console.log(error)
@@ -272,17 +360,45 @@ function TarjetaForm({auth, firebaseDB}){
                                                 disponible: false,
                                                 fecha_activacion: new Date()
                                             })  
-                                            
-                                            firebaseDB.collection("lke_trabajador").add(d)
-                                            .then(response=>{
-                                                //console.log(response)
-                                                setSubmiting(false)
-                                                toast.success("Salvado correctamente", {autoClose: 3000})
-                                                history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
-                                            })
-                                            .catch(error=>{
-                                                //console.log(error)
-                                            })
+
+                                            if(imgUser){
+                                                let name = `${imgUser.name}${new Date().getTime()}`
+                                                const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(imgUser)
+                                                uploadTask.on("state_changed", console.log, console.error, () => {
+                                                    storage
+                                                      .ref("linkcardempresarial")
+                                                      .child(name)
+                                                      .getDownloadURL()
+                                                      .then((url) => {
+                                                        let obj = {
+                                                            key: name,
+                                                            url: url
+                                                        }
+                                                            d['imagen'] = obj
+                                                            firebaseDB.collection("lke_trabajador").add(d)
+                                                            .then(response=>{
+                                                                //console.log(response)
+                                                                setSubmiting(false)
+                                                                toast.success("Salvado correctamente", {autoClose: 3000})
+                                                                history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
+                                                            })
+                                                            .catch(error=>{
+                                                                //console.log(error)
+                                                            })                                                              
+                                                      });
+                                                });
+                                            }else{
+                                                firebaseDB.collection("lke_trabajador").add(d)
+                                                .then(response=>{
+                                                    //console.log(response)
+                                                    setSubmiting(false)
+                                                    toast.success("Salvado correctamente", {autoClose: 3000})
+                                                    history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
+                                                })
+                                                .catch(error=>{
+                                                    //console.log(error)
+                                                })  
+                                            }
                                         })
                                         .catch(error=>{
                                             //console.log(error)
@@ -407,7 +523,7 @@ function TarjetaForm({auth, firebaseDB}){
                                             </Col>
                                             <Col xs="12" md="12">
                                                 <Form.Group className="mb-0">
-                                                    <Form.Label className="label-default">Direccón</Form.Label>
+                                                    <Form.Label className="label-default">Dirección</Form.Label>
                                                     <Field 
                                                         type="text"
                                                         className={`${errors.direccion && 'input-error'} form-control input-default`}
@@ -440,8 +556,8 @@ function TarjetaForm({auth, firebaseDB}){
                                                     <Field as="select" name="pais"  className={`${errors.pais && 'input-error'} form-control input-default`}>
                                                         <option>Seleccionar opción</option>
                                                         {
-                                                            ciudades.length > 0 &&
-                                                            ciudades.map((item,i)=>(
+                                                            paises.length > 0 &&
+                                                            paises.map((item,i)=>(
                                                                 <option value={item} key={i}>{item}</option>
                                                             ))
                                                         }
@@ -490,7 +606,7 @@ function TarjetaForm({auth, firebaseDB}){
                         )}
                         </Formik>
                         :
-                        <VistaEstadisticaForm tarjetaCode={tarjetaCode} />
+                        <VistaEstadisticaForm tarjetaCode={tarjetaCode} socialList={socialList} visitas={visitas}/>
                     }   
                 </Col>
             </Row>

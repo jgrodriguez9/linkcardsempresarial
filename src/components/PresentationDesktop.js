@@ -1,31 +1,25 @@
 import React from 'react';
 import { Button, Col, Container, Image, Navbar, Row } from 'react-bootstrap';
-import { FaBriefcase, FaBuilding, FaEnvelope, FaFacebook, FaInstagram, FaLaptop, FaMapMarkedAlt, FaPhone, FaTwitter } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaBriefcase, FaBuilding, FaMapMarkedAlt } from 'react-icons/fa';
 import defaultImage from '../images/default.png'
-import portada from '../images/portada1.svg'
 import { getIcon } from '../utils/getIcon';
 
-export default function PresentationDesktop({item,cliente}){
-    console.log(item)
-    console.log(cliente)
+export default function PresentationDesktop({item,cliente,handleClickSocial}){
 
-    const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==="phone" || x.icon==="email")
-    const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="email")
-
-    console.log(contacts)
+    const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==="phone" || x.icon==="mail")
+    const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
 
     return(
         <>
             <header className="mb-3">
                 <Navbar bg="light" expand="lg" className="justify-content-center">
-                    <Link to="/" className="btn btn-info">Compra tu Linkcard</Link>                    
+                <a href="https://www.linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
                 </Navbar>
             </header>
             <Container className="px-0 container-desktop shadow-sm mb-3">
                 <div className="position-relative mb-3">
                     <section className="bg-top" style={{backgroundImage: `url(${cliente.foto_principal.url})`}}></section>
-                    <Image src={defaultImage} className="img-desktop" alt="Perfil imagen"/>
+                    <Image src={item.imagen.url ? item.imagen.url : defaultImage} className="img-desktop" alt="Perfil imagen"/>
                 </div>
                 <Container>
                 <Row>
@@ -75,7 +69,7 @@ export default function PresentationDesktop({item,cliente}){
                                 <ul className="list-unstyled">
                                     {
                                         contacts.filter(x=>x.description!=="").map((item,i)=>(
-                                            <li className="mb-3 cursor-pointer">{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
+                                            <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
                                         ))
                                     }
                                 </ul>
@@ -86,7 +80,7 @@ export default function PresentationDesktop({item,cliente}){
                                 <ul className="list-unstyled">
                                     {
                                         social.filter(x=>x.description!=="").map((item,i)=>(
-                                            <li key={i} className="mb-3 cursor-pointer">{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
+                                            <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
                                         ))
                                     }
                                 </ul>

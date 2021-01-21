@@ -4,6 +4,8 @@ import "firebase/firestore"
 import { useParams } from 'react-router-dom';
 import LoaderRequest from '../loader/LoaderRequest';
 import PresentationDesktop from '../components/PresentationDesktop';
+import { openTab } from '../utils/openTab';
+import PresentationMovil from '../components/PresentationMovil';
 
 export default function PresentationCard(){
     const mql = window.matchMedia('(max-width: 540px)');
@@ -22,6 +24,11 @@ export default function PresentationCard(){
             const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', id).limit(1).get();            
             if(!trabajadorCollection.empty){
                 trabajadorCollection.forEach(doc=>{
+                    let visitas = doc.data().visitas
+                    visitas++
+                    doc.ref.update({
+                        visitas: visitas
+                    })
                     const d ={
                         fecha: new Date(),
                         empresa: doc.data().empresa,
@@ -44,21 +51,21 @@ export default function PresentationCard(){
                             r.forEach(i=>{
                                 setCliente(i.data())
                             })
-                            setSubmiting(false)
+
+                            //new estaditicas
+                            firebaseDB.collection("lke_estadisticas").add(d)
+                            .then(response=>{
+                                setSubmiting(false)
+                                //console.log(response)                        
+                            })
+                            .catch(error=>{
+                                //console.log(error)
+                            })
                         }
                         
                     })
-                    
-
                            
-                    // firebaseDB.collection("lke_estadisticas").add(d)
-                    // .then(response=>{
-                    //     setSubmiting(false)
-                    //     //console.log(response)                        
-                    // })
-                    // .catch(error=>{
-                    //     //console.log(error)
-                    // })
+                    
                 })                
             }else{
                 //console.log("empty")
@@ -67,9 +74,52 @@ export default function PresentationCard(){
         trabajadorData();
     },[]);
 
+    const  handleClickSocial = (type, description)=>{
+        setSubmiting(true)
+        firebaseDB.collection('lke_trabajador').where("tarjeta", '==', id).limit(1).get()
+        .then(response=>{
+            response.forEach(elemento=>{
+                let social = elemento.data().social_list
+                const index = social.findIndex(item => item.icon === type)
+                if(index >= 0){
+                    social[index].click = social[index].click+1
+                    social[index].description = description
+                    elemento.ref.update({
+                        social_list: social
+                    })
+                }else{
+                    let obj = {
+                        click: 1,
+                        icon: type,
+                        description: description
+                    }
+                    social.push(obj)
+                    elemento.ref.update({
+                        social_list: social
+                    })
+                }
+                setSubmiting(false)
+                openTab(description, type, mql.matches)
+            })
+            
+        })
+    }
+   
     return (
         <>
-            { isSubmiting ? LoaderRequest()  : <PresentationDesktop item={item} cliente={cliente}/>}
+            { isSubmiting ? LoaderRequest()  : 
+                mql.matches ?
+                <PresentationMovil 
+                    item={item} 
+                    cliente={cliente} 
+                    handleClickSocial={handleClickSocial}
+                /> :
+                <PresentationDesktop 
+                    item={item} 
+                    cliente={cliente} 
+                    handleClickSocial={handleClickSocial}
+                />
+            }
 
             
         </>

@@ -47,7 +47,7 @@ function TopTarjetaList({auth, firebaseDB}){
 
     useEffect(()=>{
         const ciudadData = async () =>{
-            const citiesDB = firebaseDB.collection('aciudad').doc("ciudades");
+            const citiesDB = firebaseDB.collection('lke_ciudad').doc("ciudades");
             const citiesCollection = await citiesDB.get();
             //console.log(citiesCollection.data().items)
             setCiudades(citiesCollection.data().items);
@@ -180,10 +180,10 @@ function TopTarjetaList({auth, firebaseDB}){
                                                             <tr>
                                                                 <th>No</th>
                                                                 <th>Nombre</th>
-                                                                <th>Empresa</th>
+                                                                <th>Lugar de trabajo</th>
                                                                 <th>Puesto</th>
                                                                 <th className="text-center">Tarjeta</th>
-                                                                <th className="text-center">Clicks</th>
+                                                                <th className="text-center">Visitas</th>
                                                                 <th></th>
                                                             </tr>
                                                         </thead>
