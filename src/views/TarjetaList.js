@@ -113,7 +113,6 @@ function TarjetaList({auth, firebaseDB}){
     }
 
     const borrarVisitas = () =>{
-        console.log(arrTarjetas)
         setSubmiting(true)
         //borramos las visitas del trabajador
         //borramos los click de las redes sociales del trabajador
@@ -149,6 +148,7 @@ function TarjetaList({auth, firebaseDB}){
                         }
                         setSubmiting(false)
                         DataList(orderBy)
+                        setArrTarjetas([])
                     })                                                           
                     
                 })
