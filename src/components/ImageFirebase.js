@@ -24,7 +24,7 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                 storage.ref('linkcardempresarial').child(item.foto_principal.key).delete();
             }
             let name = `${image.name}${new Date().getTime()}`
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_SUNAPI_CLIENTE).limit(1).get()
+            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
             .then(response=>{
                 if(!response.empty){
                     const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(image)
@@ -67,7 +67,7 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
         if(image.type === "image/png" || image.type === "image/jpg" || image.type === "image/svg" || image.type === "image/jpeg"){
             setSubmiting(true)
             let name = `${image.name}${new Date().getTime()}`
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_SUNAPI_CLIENTE).limit(1).get()
+            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
             .then(response=>{
                 if(!response.empty){
                     const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(image)
@@ -115,7 +115,7 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
             storage.ref('linkcardempresarial').child(key).delete()
             .then(response=>{
                 f.splice(i,1)
-                firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_SUNAPI_CLIENTE).limit(1).get()
+                firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
                 .then(resp=>{
                     resp.forEach(item=>{
                         item.ref.update({

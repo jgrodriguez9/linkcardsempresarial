@@ -6,6 +6,8 @@ import LoaderRequest from '../loader/LoaderRequest';
 import PresentationDesktop from '../components/PresentationDesktop';
 import { openTab } from '../utils/openTab';
 import PresentationMovil from '../components/PresentationMovil';
+import VCard from 'vcard-creator'
+import { getUrl } from '../utils/getUrl';
 
 export default function PresentationCard(){
     const mql = window.matchMedia('(max-width: 540px)');
@@ -104,6 +106,36 @@ export default function PresentationCard(){
             
         })
     }
+    
+    const CreateVCard = () => {
+        const vCard = new VCard()
+        var lastname = item.name
+        vCard.addName(lastname)
+        //vCard.addPhoto('https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black.png') 
+        // add work data
+        vCard.addCompany(item.cliente)
+        vCard.addJobtitle(item.puesto)
+        //vCard.addRole('Data Protection Officer')
+        //vCard.addEmail('info@jeroendesloovere.be')
+
+        var phone = cliente.social_list.filter(item=>item.icon==='phone')
+        vCard.addPhoneNumber(phone.length > 0 && phone[0].description, 'PREF;WORK')
+        //vCard.addPhoneNumber(123456789, 'WORK')
+
+        //var dir = item.social_list.filter(item=>item.icon==='ciudad')
+        vCard.addAddress('', '', item.ciudad, item.pais, '', '', '')
+
+        cliente.social_list.forEach(element => {
+            if(element.icon !=='phone' && element.description!==""){
+                vCard.addURL(getUrl(element.description, element.icon))
+            }
+        });
+
+        //console.log(vCard.toString())
+        const FileSaver = require('file-saver'); 
+        const blob = new Blob([ vCard.toString() ], {type: "text/x-vCard;charset=utf-8"});
+        FileSaver.saveAs(blob, `${item.name}.vcf`);
+    };
    
     return (
         <>
@@ -113,11 +145,13 @@ export default function PresentationCard(){
                     item={item} 
                     cliente={cliente} 
                     handleClickSocial={handleClickSocial}
+                    CreateVCard={CreateVCard}
                 /> :
                 <PresentationDesktop 
                     item={item} 
                     cliente={cliente} 
                     handleClickSocial={handleClickSocial}
+                    CreateVCard={CreateVCard}
                 />
             }
 

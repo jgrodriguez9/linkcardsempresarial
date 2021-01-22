@@ -49,7 +49,7 @@ export default function RedesSociales({firebaseDB}){
                  "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin", "behance"]
         
 
-        let socialDB = firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_SUNAPI_CLIENTE)
+        let socialDB = firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE)
         socialDB.limit(1).get().then(response=>{
             // console.log(response)
             // console.log(response.empty)

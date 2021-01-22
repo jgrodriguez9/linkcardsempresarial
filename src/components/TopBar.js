@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap'
 import 'firebase/auth'
 import { NavLink } from 'react-router-dom';
-import logo from '../images/logo.svg'
+import logo from '../images/logoLarge.svg'
 import { authContext } from '../context/AuthContext';
 import firebase from 'firebase/app'
 import 'firebase/auth'
@@ -19,7 +19,7 @@ function TopBar(){
     
     return(
         <Navbar bg="light" expand="lg" className="py-2 shadow">
-            <NavLink exact to="/empresa" className="navbar-brand px-3"><img src={logo} alt="Logo" /></NavLink>
+            <NavLink exact to="/empresa" className="navbar-brand px-3"><img src={logo} alt="Logo" className="w-150p" /></NavLink>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">

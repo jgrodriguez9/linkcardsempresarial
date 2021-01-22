@@ -25,7 +25,7 @@ export const openTab = (profile, type, mobile) => {
             }            
             break;
         case 'twitter':
-            window.open(`https://www.twitter.com//${profile}`, '_blank')
+            window.open(`https://www.twitter.com/${profile}`, '_blank')
             break;
         case 'instagram':
             window.open(`https://www.instagram.com/${profile}`, '_blank')

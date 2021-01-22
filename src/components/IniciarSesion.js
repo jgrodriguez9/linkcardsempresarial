@@ -3,13 +3,10 @@ import { Formik, Field } from 'formik'
 import * as Yup from 'yup';
 import firebase from 'firebase/app';
 import 'firebase/auth'
+import "firebase/firestore"
 import { useHistory } from 'react-router-dom';
 import { authContext } from '../context/AuthContext';
 import { Button, Card, Col, Image, Row } from 'react-bootstrap';
-import { FaFacebookSquare, FaApple, FaGoogle } from "react-icons/fa";
-import facebook from '../images/Facebook.svg';
-import apple from '../images/Apple.svg';
-import googlePlus from '../images/GooglePlus.svg';
 import logoLogin from '../images/logoLogin.svg'
 
 
@@ -17,6 +14,7 @@ function IniciarSesion({setSignup}){
     const [message, setMessage] = useState('')
     const { setAuthData } = useContext(authContext)
     const auth = firebase.auth()
+    const firebaseDB = firebase.firestore();
     const history = useHistory()
     
     const shema = Yup.object().shape({
@@ -33,20 +31,33 @@ function IniciarSesion({setSignup}){
             onSubmit={(values, { setSubmitting,setFieldValue }) => { 
                 //console.log(values)
                 auth.signInWithEmailAndPassword(values.email, values.password)
-                .then(response=>{
-                    setSubmitting(false)
+                .then(response=>{                    
                     //console.log(response)
                     //console.log(response)
-                    //validamos que halla confirmado su email
-                    var user = response.user;
-                    setAuthData(response.user)
-                    history.push("/empresa")
-                    /* if(user.emailVerified){
-                        setAuthData(response.user)
-                        history.push("/")
-                    }else{
-                        setMessage("Confirme su correo electrónico por favor")
-                    }    */               
+
+                    //validamos que este en la base datos y tenga permiso para accesar
+                    firebaseDB.collection("lke_usuarios").where('email', '==', values.email).where('cliente', '==', process.env.REACT_APP_CLIENTE).limit(1).get()
+                    .then(res=>{
+                        if(!res.empty){
+                            res.forEach(item=>{
+                                if(item.data().activo){
+                                    setAuthData(response.user)
+                                    history.push("/empresa")
+                                }else{
+                                    auth.signOut()
+                                    setMessage("Su usuario no está activado")                                    
+                                }
+                            })
+                        }else{
+                            auth.signOut()
+                            setMessage("No se encuentra el usuario")                            
+                        }      
+                        setSubmitting(false)                  
+                    }).catch(er=>{
+                        auth.signOut()
+                        setMessage("Ocurrió un error. Intente nuevamente por favor.") 
+                        setSubmitting(false)                           
+                    })             
                 })
                 .catch(error => {
                     setSubmitting(false)
@@ -83,7 +94,7 @@ function IniciarSesion({setSignup}){
                             <Image src={logoLogin} alt="logo" fluid className="w-75 m-auto"/>
 
 
-                            <span className="text-danger">{message}</span> 
+                            <span className="text-danger d-block">{message}</span> 
                             <Row>
                                 {/* <Col md="12">
                                     <div className="d-flex justify-content-between">

@@ -4,7 +4,7 @@ import { FaBriefcase, FaBuilding, FaMapMarkedAlt } from 'react-icons/fa';
 import defaultImage from '../images/default.png'
 import { getIcon } from '../utils/getIcon';
 
-export  default function PresentationMovil({item,cliente,handleClickSocial}){
+export  default function PresentationMovil({item,cliente,handleClickSocial,CreateVCard}){
 
     const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==="phone" || x.icon==="mail")
     const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
@@ -43,7 +43,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial}){
                     </Row>
                     <Row>
                         <Col xs="12" md="3">
-                            <Button variant="info" block>Agregar a contactos</Button>
+                            <Button variant="info" block onClick={CreateVCard}>Agregar a contactos</Button>
                             <hr />
                         </Col>
                     </Row>

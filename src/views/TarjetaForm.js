@@ -83,7 +83,7 @@ function TarjetaForm({auth, firebaseDB}){
             setTarjeta(tarjetaCode)
             const trabajadorData = async () =>{
                 const trabajadorDB = firebaseDB.collection("lke_trabajador")
-                const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                                .where("tarjeta", '==', tarjetaCode).limit(1).get();
                 if(!trabajadorCollection.empty){
                     trabajadorCollection.forEach(doc=>{
@@ -124,7 +124,7 @@ function TarjetaForm({auth, firebaseDB}){
             //setOptLoad(true)
             const tarjetaData = async () =>{
                 const tarjetaDB = firebaseDB.collection('lke_tarjeta')
-                const tarjetaCollection = await tarjetaDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                const tarjetaCollection = await tarjetaDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                          .where('disponible', '==', true).get();
                 if(!tarjetaCollection.empty){
                     let arr = []
@@ -263,7 +263,7 @@ function TarjetaForm({auth, firebaseDB}){
                                         biografia: values.biografia,
                                         celular: values.celular,
                                         ciudad: values.ciudad,
-                                        cliente: process.env.REACT_APP_SUNAPI_CLIENTE,
+                                        cliente: process.env.REACT_APP_CLIENTE,
                                         cumpleanos: values.cumpleanos,
                                         cumpleanos_activo: values.cumpleanos_activo,
                                         direccion: values.direccion,
@@ -278,7 +278,7 @@ function TarjetaForm({auth, firebaseDB}){
                                         tarjeta: tarjeta.trim()                                        
                                     }
                                     if(tarjetaCode){
-                                        firebaseDB.collection("lke_trabajador").where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                                        firebaseDB.collection("lke_trabajador").where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                                                .where("tarjeta", '==', tarjetaCode).limit(1).get()
                                         .then(response=>{
                                             //console.log('update')
@@ -437,14 +437,6 @@ function TarjetaForm({auth, firebaseDB}){
                                                     />
                                                 }
                                             </Col>
-                                            {/* <Col xs="12" md="12">
-                                                <div>
-                                                    <span className={`${errorsTarjeta && 'error-tarjeta'} tr-id pr-5 font-weight-bold`}>ID de tarjeta </span>
-                                                    <span className="tr-code">{tarjeta}</span>
-                                                    {!tarjetaCode && <span className="mb-2 ml-4"><Button variant="light" size="sm" type="button" onClick={e=>refreshCode()}><AiOutlineReload /></Button> </span>}
-                                                    <input type="hidden" value={tarjeta} />
-                                                </div>                                    
-                                            </Col> */}
                                         </Row>
                                         <Row className="mt-5">    
                                             <Col xs="6" md="6">
@@ -471,7 +463,7 @@ function TarjetaForm({auth, firebaseDB}){
                                             </Col>  
                                             <Col xs="6" md="6">
                                                 <Form.Group>
-                                                    <Form.Label className="label-default">Empresa</Form.Label>
+                                                    <Form.Label className="label-default">Lugar de trabajo</Form.Label>
                                                     <Field as="select" name="empresa"  className={`${errors.empresa && 'input-error'} form-control input-default`}>
                                                         <option>Seleccionar opción</option>
                                                         {

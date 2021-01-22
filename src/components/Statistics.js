@@ -3,7 +3,6 @@ import { Button, Card, Col, Form, Image, Jumbotron, ListGroup, Modal, ProgressBa
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { numberFormat } from '../utils/numberFormat';
-import PieChartComponent from './PieChartComponent';
 import userDefault from '../images/userdefault.png'
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { useHistory } from 'react-router-dom';
@@ -12,11 +11,13 @@ import { buildListUbicacion } from '../utils/buildListUbicacion';
 import { percent } from '../utils/percent';
 import { classPercent } from '../utils/classPercent';
 import { buildListCiudad } from '../utils/buildListCiudad';
-import { getColorCiudad } from '../utils/getColorCiudad';
 import { buildListTop } from '../utils/buildListTop';
 import logoAddT from '../images/logoAddT.svg'
 import { setToMonday } from '../utils/setToMonday';
 import { buildListInfoTarjeta } from '../utils/buildListInfoTarjeta';
+import { buildListRedes } from '../utils/buildListRedes';
+import { getTexto } from '../utils/getTexto';
+import { getImage } from '../utils/getImage';
 
 function Statistics({auth, firebaseDB}){
     const [startDate, setStartDate] = useState(setToMonday(new Date()));
@@ -41,44 +42,28 @@ function Statistics({auth, firebaseDB}){
 
     const [topTarjetas, setTopTarjetas] = useState([])
     const [ciudades, setCiudades] = useState([])
+
+    const [redesSociales, setRedesSociales] = useState([])
     
     useEffect(()=>{
         //total tarjetas
         const tarjetaData = async () =>{
             const tarjetaDBStats = firebaseDB.collection("lke_tarjeta")
-                .where('disponible', '==', true)
-                .where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                .where('cliente', '==', process.env.REACT_APP_CLIENTE)
             const tarjetasCollection = await tarjetaDBStats.get()
             if(!tarjetasCollection.empty){
                 let arrTarjeta = []
                 tarjetasCollection.forEach(item=>{
                     arrTarjeta.push(item.data())
                 })
-                setCantidadtarjeta(arrTarjeta.length)
+                setCantidadtarjeta(arrTarjeta.filter(elem=>elem.disponible===true).length)
                  //tarjetas activas
                 setCantidadtarjetaA(arrTarjeta.filter(elem=>elem.disponible===false).length)
             }else{
 
             }
         }
-
         tarjetaData()
-        //tarjetas activas
-        // const tarjetaDataA = async () =>{
-        //     const tarjetaDBStats = firebaseDB.collection("atarjeta")
-        //     const tarjetasCollection = await tarjetaDBStats.where("disponible", "==", false).get()
-        //     if(!tarjetasCollection.empty){
-        //         let arrTarjeta = []
-        //         tarjetasCollection.forEach(item=>{
-        //             arrTarjeta.push(item.data())
-        //         })
-        //         setCantidadtarjetaA(arrTarjeta.length)
-        //     }else{
-        //         setCantidadtarjetaA(0)
-        //     }
-        // }
-
-        // tarjetaDataA()
 
         //ciudades para las ubicaciones
         const ciudadData = async () =>{
@@ -88,6 +73,31 @@ function Statistics({auth, firebaseDB}){
             setCiudades(citiesCollection.data().items);
         }
         ciudadData()
+
+
+        //check redes sociales con mas visitas
+        const redesData = async () =>{
+            const redesStats = firebaseDB.collection("lke_trabajador").where('cliente','==', process.env.REACT_APP_CLIENTE)
+            const redesCollection = await redesStats.get()
+            if(!redesCollection.empty){
+                let arrRedes = [];
+                redesCollection.forEach(item=>{
+                    item.data().social_list.forEach(e=>{
+                        let obj ={
+                            icon: e.icon,
+                            click: e.click
+                        }
+                        arrRedes.push(obj)                        
+                    })
+                })
+                let arrGroupBy = groupBy(arrRedes, "icon");
+                let arr = buildListRedes(arrGroupBy);
+                setRedesSociales(arr.slice(0,5))
+            }else{
+                setRedesSociales([])
+            }
+        }
+        redesData()
     }, [])
 
     useEffect(()=>{
@@ -98,7 +108,7 @@ function Statistics({auth, firebaseDB}){
         const ubicacionData = async () =>{
             const ubicacionDB = firebaseDB.collection('lke_estadisticas');
             if(queryData==='Todos'){
-                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                              .where('fecha', '>=', startDate)
                                                              .where('fecha', '<=', endDate).get();
                 if(!ubicacionCollection.empty){
@@ -115,7 +125,7 @@ function Statistics({auth, firebaseDB}){
                     setUbicacionList([])                
                 }        
             }else{
-                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                              .where('ciudad', '==', queryData).where('fecha', '>=', startDate)
                                                              .where('fecha', '<=', endDate).get();
                 if(!ubicacionCollection.empty){
@@ -146,7 +156,7 @@ function Statistics({auth, firebaseDB}){
         //listado por ubicacion de empresa
         const ubicacionData = async () =>{
             const ubicacionDB = firebaseDB.collection('lke_estadisticas');
-            const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+            const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                          .where('fecha', '>=', startDate)
                                                          .where('fecha', '<=', endDate).get();
             //visualizaciones
@@ -156,19 +166,13 @@ function Statistics({auth, firebaseDB}){
                 ubicacionCollection.forEach(item=>{
                     arrUbicacion.push(item.data())
                 })
-                //console.log(arrUbicacion);
-                //let arrGroupBy = groupBy(arrUbicacion, "empresa");
-                //let arr = buildListUbicacion(arrGroupBy);
-                //setUbicacionList(arr)
-                //setMaxCantidad(arr[0].visualizaciones)
-                //ciudad
                 let arrCiudadGroupBy = groupBy(arrUbicacion, "ciudad"); 
                 let arr1 = buildListCiudad(arrCiudadGroupBy);
                 setTarjetasLugar(arr1)
                 //top tres tarjetas
                 let arrTopGroupBy = groupBy(arrUbicacion, "nombre");
                 let arr2 = buildListTop(arrTopGroupBy);
-                setTopTarjetas(arr2.slice(0,10))
+                setTopTarjetas(arr2.slice(0,5))
 
             }else{
                 //setUbicacionList([])
@@ -176,7 +180,6 @@ function Statistics({auth, firebaseDB}){
                 setTopTarjetas([])
             }            
         }
-
         ubicacionData();
 
     }, [endDate])
@@ -217,7 +220,7 @@ function Statistics({auth, firebaseDB}){
     const seeTrabajador = (tarjeta, nombre) =>{
         const trabajadorData = async () =>{
             const trabajadorDB = firebaseDB.collection("lke_estadisticas")
-            const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
+            const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
                                                            .where("tarjeta", '==', tarjeta)
                                                            .where("nombre", '==', nombre)
                                                            .orderBy('fecha')
@@ -248,63 +251,63 @@ function Statistics({auth, firebaseDB}){
 
     }
 
-    const [tarjetasInfoList, setTarjetasInfoList] = useState([])
-    const [showTarjeta, setShowTarjeta] = useState(false)
-    const handleCloseTarjeta = () => setShowTarjeta(false);
+    //const [tarjetasInfoList, setTarjetasInfoList] = useState([])
+    //const [showTarjeta, setShowTarjeta] = useState(false)
+    //const handleCloseTarjeta = () => setShowTarjeta(false);
 
-    const seeTarjetasInfo = empresa =>{
-        console.log(empresa)
+    // const seeTarjetasInfo = empresa =>{
+    //     console.log(empresa)
 
-        startDate.setHours(0,0,0)
-        endDate.setHours(23,59,59,999)
+    //     startDate.setHours(0,0,0)
+    //     endDate.setHours(23,59,59,999)
 
-        const ubicacionData = async () =>{
-            const ubicacionDB = firebaseDB.collection('lke_estadisticas');
-            if(queryData==='Todos'){
-                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
-                                                             .where('fecha', '>=', startDate)
-                                                             .where('fecha', '<=', endDate)
-                                                             .where('empresa', '==', empresa).get();
-                if(!ubicacionCollection.empty){
-                    let arrUbicacion = [];
-                    ubicacionCollection.forEach(item=>{
-                        arrUbicacion.push(item.data())
-                    })
-                    //console.log(arrUbicacion);
-                    let arrGroupBy = groupBy(arrUbicacion, "empresa");
-                    let arr = buildListInfoTarjeta(arrGroupBy);
-                    setTarjetasInfoList(arr)
-                    setShowTarjeta(true)
-                }else{
-                    setTarjetasInfoList([])   
-                    setShowTarjeta(true)             
-                }        
-            }else{
-                const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_SUNAPI_CLIENTE)
-                                                             .where('ciudad', '==', queryData)
-                                                             .where('fecha', '>=', startDate)
-                                                             .where('fecha', '<=', endDate)
-                                                             .where('empresa', '==', empresa).get();
-                if(!ubicacionCollection.empty){
-                    let arrUbicacion = [];
-                    ubicacionCollection.forEach(item=>{
-                        arrUbicacion.push(item.data())
-                    })
-                    //console.log(arrUbicacion);
-                    let arrGroupBy = groupBy(arrUbicacion, "empresa");
-                    let arr = buildListInfoTarjeta(arrGroupBy);
-                    setTarjetasInfoList(arr)
-                    setShowTarjeta(true)
-                }else{
-                    setTarjetasInfoList([])   
-                    setShowTarjeta(true)             
-                }       
-            }                
-        }
+    //     const ubicacionData = async () =>{
+    //         const ubicacionDB = firebaseDB.collection('lke_estadisticas');
+    //         if(queryData==='Todos'){
+    //             const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
+    //                                                          .where('fecha', '>=', startDate)
+    //                                                          .where('fecha', '<=', endDate)
+    //                                                          .where('empresa', '==', empresa).get();
+    //             if(!ubicacionCollection.empty){
+    //                 let arrUbicacion = [];
+    //                 ubicacionCollection.forEach(item=>{
+    //                     arrUbicacion.push(item.data())
+    //                 })
+    //                 //console.log(arrUbicacion);
+    //                 let arrGroupBy = groupBy(arrUbicacion, "empresa");
+    //                 let arr = buildListInfoTarjeta(arrGroupBy);
+    //                 setTarjetasInfoList(arr)
+    //                 setShowTarjeta(true)
+    //             }else{
+    //                 setTarjetasInfoList([])   
+    //                 setShowTarjeta(true)             
+    //             }        
+    //         }else{
+    //             const ubicacionCollection = await ubicacionDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
+    //                                                          .where('ciudad', '==', queryData)
+    //                                                          .where('fecha', '>=', startDate)
+    //                                                          .where('fecha', '<=', endDate)
+    //                                                          .where('empresa', '==', empresa).get();
+    //             if(!ubicacionCollection.empty){
+    //                 let arrUbicacion = [];
+    //                 ubicacionCollection.forEach(item=>{
+    //                     arrUbicacion.push(item.data())
+    //                 })
+    //                 //console.log(arrUbicacion);
+    //                 let arrGroupBy = groupBy(arrUbicacion, "empresa");
+    //                 let arr = buildListInfoTarjeta(arrGroupBy);
+    //                 setTarjetasInfoList(arr)
+    //                 setShowTarjeta(true)
+    //             }else{
+    //                 setTarjetasInfoList([])   
+    //                 setShowTarjeta(true)             
+    //             }       
+    //         }                
+    //     }
 
-        ubicacionData();
+    //     ubicacionData();
 
-    }
+    // }
 
     return(
         <>
@@ -356,7 +359,7 @@ function Statistics({auth, firebaseDB}){
             </Modal.Footer>
         </Modal>
 
-        <Modal show={showTarjeta} onHide={handleCloseTarjeta} size="lg">
+        {/* <Modal show={showTarjeta} onHide={handleCloseTarjeta} size="lg">
             <Modal.Header closeButton>
               <Modal.Title>Detalle</Modal.Title>
             </Modal.Header>
@@ -408,7 +411,7 @@ function Statistics({auth, firebaseDB}){
                 Aceptar
               </Button>
             </Modal.Footer>
-        </Modal>
+        </Modal> */}
 
         <Row className="mt-5 align-items-center px-3">
             <Col md="7" xs="7">
@@ -459,7 +462,7 @@ function Statistics({auth, firebaseDB}){
                 <Card className="border-0">
                     <Card.Body>
                         <div className="p-4">
-                        <span className="d-block dash-title">Tarjetas Activadas</span>
+                        <span className="d-block dash-title">Tarjetas activadas</span>
                         <span className="d-block dash-number dash-number-1">{numberFormat(cantidadTarjetaA)}</span>
                         </div>
                     </Card.Body>
@@ -478,184 +481,99 @@ function Statistics({auth, firebaseDB}){
         </Row>
         
         <Row className="mt-4 px-3 mb-2">
-            <Col md="4" xs="4">
-                <Row>
-                    <Col>
-                        <Card className="border-0 bg-blue cursor-pointer" onClick={e=>showAddTarjetas()}>
-                            <Card.Body>
-                                <div className="flex">
-                                    <img src={logoAddT} alt="tarjeta add" className="img-fluid mr-2 w-10p" />
-                                    <span className="cl-white fw-600">Asignar tarjeta</span>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-                {/* <Row className="mt-4">
-                    <Col>
-                        <Card className="border-0">
-                            <Card.Body>
-                                {
-                                    tarjetasLugar.length === 0 ?
-                                    <Row className="align-items-center">
-                                        <Col xs="12">
-                                            <h6>Ubicación de tarjetas</h6>
-                                        </Col>
-                                        <Col xs="12">
-                                            <p className="text-muted">No hay información a mostrar</p>
-                                        </Col>
-                                    </Row>:
-                                    <Row className="align-items-center">
-                                        <Col xs="12">
-                                            <h6>Ubicación de tarjetas</h6>
-                                        </Col>
-                                        <Col md="6" xs ="6">
-                                            <div>
-                                                <PieChartComponent auth={auth} tarjetasLugar={tarjetasLugar}/>
-                                            </div>
-                                        </Col>
-                                        <Col md="6" xs ="6">
-                                            <div>
-                                                <ul className="pl-1 st-ul">
-                                                    {
-                                                        tarjetasLugar.map((item,i)=>(
-                                                            <li key={i} className={getColorCiudad(i)}>
-                                                                <span className="d-block st-1">{item.ciudad}</span>
-                                                                <span className="d-block st-number">{numberFormat(item.cantidad)}</span>
-                                                            </li>
-                                                        ))
-                                                    }
-                                                </ul>
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                }
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row> */}
-                <Row className="mt-4">
-                    <Col>
-                        <Card className="border-0">
-                            <Card.Body>
-                            {
-                                topTarjetas.length === 0 ?
-                                <Row className="align-items-center">
-                                    <Col xs="12">
-                                        <h6>Top 10 tarjetas con más visitas</h6> 
-                                    </Col>
-                                    <Col xs="12">
-                                        <p className="text-muted">No hay información a mostrar</p>
-                                    </Col>
-                                </Row>:
-                                <Row className="align-items-center">
-                                    <Col xs="12">
-                                        <h6>Top 10 tarjetas con más visitas</h6>
-                                    </Col>
-                                    <Col xs="12">
-                                        <ListGroup variant="flush">
-                                            {
-                                                topTarjetas.map((item,i)=>(
-                                                    <ListGroup.Item className="px-2" key={i}>
-                                                        <div className="d-flex flex-row">
-                                                            <Image src={userDefault} rounded className="st-image pr-2"/>
-                                                            <div>
-                                                            <span className="d-block fw-600 ft-14 hover-underline" onClick={e=>seeTrabajador(item.tarjeta, item.nombre)}>{item.nombre}</span>
-                                                            <span className="d-block ft-12">{item.puesto}</span>
-                                                            </div>
-                                                        </div>
-                                                    </ListGroup.Item>
-                                                ))
-                                            }
-                                        </ListGroup>
-                                    </Col>
-                                </Row>
-                                }
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
+            <Col xs="4" md="4">
+                <Card className="border-0 bg-blue cursor-pointer" onClick={e=>showAddTarjetas()}>
+                    <Card.Body>
+                        <div className="flex">
+                            <img src={logoAddT} alt="tarjeta add" className="img-fluid mr-2 w-10p" />
+                            <span className="cl-white fw-600">Asignar tarjeta</span>
+                        </div>
+                    </Card.Body>
+                </Card>
             </Col>
-            <Col md="8" xs="8">
+        </Row>
+        
+        <Row className="mt-4 px-3 mb-2">
+            <Col md="6" xs="6">                
                 <Card className="border-0">
+                    <Card.Body>
                     {
-                        ubicacionList.length === 0 ?
-                        <Card.Body>
-                            <div className="d-flex justify-content-between">
-                                <h6>Ubicación por lugar de trabajo</h6>
-                                <div>
+                        redesSociales.length === 0 ?
+                        <Row className="align-items-center">
+                            <Col xs="12">
+                                <h6>Top 5 redes con mayor impresión</h6> 
+                            </Col>
+                            <Col xs="12">
+                                <p className="text-muted">No hay información a mostrar</p>
+                            </Col>
+                        </Row>:
+                        <Row className="align-items-center">
+                            <Col xs="12">
+                                <h6>Top 5 redes con mayor impresión</h6>
+                            </Col>
+                            <Col xs="12">
+                                <ListGroup variant="flush">
                                     {
-                                        ciudades.length > 0 &&
-                                        <Form.Control as="select" size="sm" value={queryData} onChange={e=>setQueryData(e.target.value)}>
-                                            <option value='Todos'>Todos</option>
-                                            {
-                                                ciudades.map((item,i)=>(
-                                                    <option key={i} value={item}>{item}</option>
-                                                ))    
-                                            }
-                                        </Form.Control>
+                                        redesSociales.map((item,i)=>(
+                                            <ListGroup.Item className="px-2" key={i}>
+                                                <div className="d-flex justify-content-between">
+                                                    <div>
+                                                        <span className="mr-4 ft-1-2rem">{i+1}</span>
+                                                        <Image src={getImage(item.icon)} rounded className="mr-4"/>
+                                                        <span className="ft-1-2rem">{getTexto(item.icon)}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span><small className="d-block">Total de visitas</small></span>
+                                                        <span className="text-info float-right">{item.visualizaciones}</span>
+                                                    </div>
+                                                </div>
+                                            </ListGroup.Item>
+                                        ))
                                     }
-                                </div>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span className="st-title-celeste">Lugar de trabajo</span>
-                                <span className="st-title-celeste">Visitas</span>
-                            </div>                            
-                            <Row>
-                                <Col className="text-center">
-                                    <p className="text-muted">No hay información a mostrar</p>
-                                </Col>
-                            </Row>
-                        </Card.Body> : 
-                        <Card.Body>
-                            <div className="d-flex justify-content-between">
-                                <h6>Ubicación por lugar de trabajo</h6>
-                                <div>
-                                    {
-                                        ciudades.length > 0 &&
-                                        <Form.Control as="select" size="sm" value={queryData} onChange={e=>setQueryData(e.target.value)}>
-                                            <option value='Todos'>Todos</option>
-                                            {
-                                                ciudades.map((item,i)=>(
-                                                    <option key={i} value={item}>{item}</option>
-                                                ))    
-                                            }
-                                        </Form.Control>
-                                    }
-                                </div>
-                            </div>
-                            
-                            <div className="d-flex justify-content-between">
-                                <span className="st-title-celeste">Lugar de trabajo</span>
-                                <span className="st-title-celeste">Visitas</span>
-                            </div>
-                            {
-                                ubicacionList.map((item, i)=>(
-                                    <Row className={`my-4 ${i >= seeCant && 'd-none'}`} key={i}>
-                                        <Col xs="2" md="2"><div className="st-title-progress">{item.cantidad}</div></Col>
-                                        <Col xs="7" md="7"><div className="st-title-progress"><span className="hover-underline" onClick={e=>seeTarjetasInfo(item.empresa)}>{item.empresa}</span></div></Col>
-                                        <Col xs="3" md="3"><div className="st-title-progress text-right">{item.visualizaciones}</div></Col>
-                                        <Col xs="12" md="12">
-                                            <ProgressBar className={`h-05 ${classPercent(percent(item.visualizaciones, maxCantidad))}`} now={percent(item.visualizaciones, maxCantidad)} />
-                                        </Col>
-                                    </Row>
-                                ))
-                            }
-                            <Row>
-                                {
-                                    ubicacionList.length > 10 &&
-                                    <Col className="text-center">
-                                        <Button  type="buttom" variant="link" className="ft-14 decoration-none" onClick={e=>onClickSetDisplay(!seeAll)}>
-                                            {
-                                                !seeAll ? <span>Ver todo <IoIosArrowDown /></span> : <span>Ver menos <IoIosArrowUp /></span>
-                                                
-                                            }
-                                        </Button>
-                                    </Col>
-                                }                                
-                            </Row>
-                        </Card.Body>
+                                </ListGroup>
+                            </Col>
+                        </Row>
                     }
+                    </Card.Body>
+                </Card>
+            </Col>
+            <Col md="6" xs="6">
+                <Card className="border-0">
+                    <Card.Body>
+                    {
+                        topTarjetas.length === 0 ?
+                        <Row className="align-items-center">
+                            <Col xs="12">
+                                <h6>Top 5 tarjetas con mayor impresión</h6> 
+                            </Col>
+                            <Col xs="12">
+                                <p className="text-muted">No hay información a mostrar</p>
+                            </Col>
+                        </Row>:
+                        <Row className="align-items-center">
+                            <Col xs="12">
+                                <h6>Top 5 tarjetas con mayor impresión</h6>
+                            </Col>
+                            <Col xs="12">
+                                <ListGroup variant="flush">
+                                    {
+                                        topTarjetas.map((item,i)=>(
+                                            <ListGroup.Item className="px-2" key={i}>
+                                                <div className="d-flex flex-row">
+                                                    <Image src={userDefault} rounded className="st-image pr-2"/>
+                                                    <div>
+                                                    <span className="d-block fw-600 ft-14 hover-underline" onClick={e=>seeTrabajador(item.tarjeta, item.nombre)}>{item.nombre}</span>
+                                                    <span className="d-block ft-12">{item.puesto}</span>
+                                                    </div>
+                                                </div>
+                                            </ListGroup.Item>
+                                        ))
+                                    }
+                                </ListGroup>
+                            </Col>
+                        </Row>
+                    }
+                    </Card.Body>
                 </Card>
             </Col>
         </Row>        
