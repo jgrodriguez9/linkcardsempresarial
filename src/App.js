@@ -6,14 +6,16 @@ import Dashboard from './views/Dashboard';
 import AuthProvider from './context/AuthContext';
 import PresentationCard from './views/PresentationCard';
 
+
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Switch>
-          <Route exact path="/empresa/tarjeta/:id" component={PresentationCard}/>
-          <Route exact path="/empresa/sign-in" component={Login} />
-          <PrivateRoute path="/empresa" component={Dashboard} />
+          <Route exact path="/empresas/minerva/tarjeta/:id" component={PresentationCard}/>
+          <Route exact path="/empresas/minerva/sign-in" component={Login} />
+          <PrivateRoute path="/empresas/minerva" component={Dashboard} />
         </Switch>
     </BrowserRouter>
     </AuthProvider>

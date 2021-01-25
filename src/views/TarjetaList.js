@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
-import { BsChevronLeft, BsChevronRight, BsThreeDotsVertical } from "react-icons/bs";
-import { FaPencilAlt, FaTrashAlt } from 'react-icons/fa';
+import { Button, Card, Col, Form, Jumbotron, Modal, Row, Table } from 'react-bootstrap';
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { FaTrashAlt } from 'react-icons/fa';
 import { Link, useHistory } from 'react-router-dom';
 import Pagination from 'rc-pagination';
 import { BiDotsHorizontalRounded } from "react-icons/bi";
@@ -21,6 +21,9 @@ function TarjetaList({auth, firebaseDB}){
     const [orderBy, setOrderBy] = useState('nombre')
     const [arrTarjetas, setArrTarjetas] = useState([])
     const [isSubmiting, setSubmiting] = useState(false)
+    const [show, setShow] = useState(false)
+    const handleClose = () => setShow(false);
+    const [trabajador, setTrabajador] = useState(null)
 
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 10;
@@ -50,7 +53,7 @@ function TarjetaList({auth, firebaseDB}){
 
     const verTrabajador = (tarjeta) =>{
         //console.log(tarjeta)
-        history.push(`/empresa/tarjetas/value?tarjeta=${tarjeta}`)
+        history.push(`/empresas/minerva/tarjetas/value?tarjeta=${tarjeta}`)
     }
 
     const onHandleClickDelete = (tarjeta, index) =>{
@@ -95,21 +98,30 @@ function TarjetaList({auth, firebaseDB}){
     }
 
     const onHandleChangeCheck = (checked, tarjeta) =>{
-        if(checked){
-            let arr = [...arrTarjetas]
-            const index = arr.findIndex(ele=>ele === tarjeta)
-            if(index<0){
-                arr.push(tarjeta)
+        if(tarjeta==='todas'){
+            if(checked){
+                let arr = items.map(i=>i.tarjeta);
                 setArrTarjetas(arr)
+            }else{
+                setArrTarjetas([])
             }
         }else{
-            let arr = [...arrTarjetas]
-            const index = arr.findIndex(ele=>ele === tarjeta)
-            if(index>=0){
-                arr.splice(index,1)
-                setArrTarjetas(arr)
+            if(checked){
+                let arr = [...arrTarjetas]
+                const index = arr.findIndex(ele=>ele === tarjeta)
+                if(index<0){
+                    arr.push(tarjeta)
+                    setArrTarjetas(arr)
+                }
+            }else{
+                let arr = [...arrTarjetas]
+                const index = arr.findIndex(ele=>ele === tarjeta)
+                if(index>=0){
+                    arr.splice(index,1)
+                    setArrTarjetas(arr)
+                }
             }
-        }        
+        }                
     }
 
     const borrarVisitas = () =>{
@@ -156,18 +168,96 @@ function TarjetaList({auth, firebaseDB}){
         })
     }
 
+    const seeTrabajador = (tarjeta, nombre) =>{
+        //console.log(tarjeta)
+        const trabajadorData = async () =>{
+            const trabajadorDB = firebaseDB.collection("lke_trabajador")
+            const trabajadorCollection = await trabajadorDB.where('cliente', '==', process.env.REACT_APP_CLIENTE)
+                                                           .where("tarjeta", '==', tarjeta).limit(1).get();
+            if(!trabajadorCollection.empty){
+                trabajadorCollection.forEach(doc=>{
+                    //console.log(doc)
+                    //console.log(doc.data())
+                    const entity = {                            
+                        email: doc.data().email,
+                        nombre: doc.data().nombre,
+                        ciudad: doc.data().ciudad,        
+                        empresa: doc.data().empresa,
+                        puesto: doc.data().puesto,
+                        cumpleanos: doc.data().cumpleanos,
+                        celular: doc.data().celular,
+                        tarjeta: doc.data().tarjeta,
+                    }
+                    setTrabajador(entity)
+                    setShow(true)
+                })
+            }else{
+                //console.log("empty")
+                setShow(true)
+            }
+        }
+        trabajadorData();
+    }
+
 
     return(
         <>
         {
             isLoading ? <SkeletonTarjetaList />:
             <>
+                <Modal show={show} onHide={handleClose} size="lg">
+                    <Modal.Header closeButton>
+                    <Modal.Title>Detalle del trabajador</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                    {
+                        trabajador === null ?
+                        <Row>
+                            <Col>
+                                <Jumbotron>
+                                    <h1>Lo sentimos!!!</h1>
+                                    <p>
+                                        No se ha podido encontrar el trabajador.
+                                    </p>
+                                </Jumbotron>
+                            </Col>
+                        </Row> :
+                        <dl className="row">
+                            <dt className="col-sm-3 text-truncate">Tarjeta</dt>
+                            <dd className="col-sm-9">{trabajador.tarjeta}</dd>
+
+                            <dt className="col-sm-3">Nombre</dt>
+                            <dd className="col-sm-9">{trabajador.nombre}</dd>
+                        
+                            <dt className="col-sm-3">Celular</dt>
+                            <dd className="col-sm-9">{trabajador.celular}</dd>
+                        
+                            <dt className="col-sm-3">Correo electrónico</dt>
+                            <dd className="col-sm-9">{trabajador.email}</dd>
+                        
+                            <dt className="col-sm-3 text-truncate">Ciudad</dt>
+                            <dd className="col-sm-9">{trabajador.ciudad}</dd>
+
+                            <dt className="col-sm-3 text-truncate">Puesto</dt>
+                            <dd className="col-sm-9">{trabajador.puesto}</dd>
+
+                            <dt className="col-sm-3 text-truncate">Lugar de trabajo</dt>
+                            <dd className="col-sm-9">{trabajador.empresa}</dd>                        
+                        </dl>
+                    }
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="primary" onClick={handleClose}>
+                        Aceptar
+                    </Button>
+                    </Modal.Footer>
+                </Modal>
                 {isSubmiting && LoaderRequest()}
                 <Row className="mt-5 px-3">
                     <Col>
                         <div className="d-flex justify-content-between">
                             <div><h4>Tarjetas</h4></div>
-                            <div><Link to="/empresa/tarjetas/value" className="btn btn-info btn-sm px-5">Asignar tarjeta</Link></div>
+                            <div><Link to="/empresas/minerva/tarjetas/value" className="btn btn-info btn-sm px-5">Asignar tarjeta</Link></div>
                         </div>
                     </Col>
                 </Row>
@@ -197,7 +287,10 @@ function TarjetaList({auth, firebaseDB}){
                                                         <Table responsive className="tableList">
                                                             <thead>
                                                                 <tr>
-                                                                    <th></th>
+                                                                    <th>
+                                                                        <input type="checkbox" 
+                                                                            onChange={e=>onHandleChangeCheck(e.target.checked, 'todas')} />
+                                                                    </th>
                                                                     <th>Nombre</th>
                                                                     <th>Celular</th>
                                                                     <th>Lugar de trabajo</th>
@@ -212,11 +305,15 @@ function TarjetaList({auth, firebaseDB}){
                                                                 {
                                                                     items.slice(indexOfFirstPost, indexOfLastPost).map((item, i)=>(
                                                                         <tr key={i}>
-                                                                            <th width="3%"><input type="checkbox" onChange={e=>onHandleChangeCheck(e.target.checked, item.tarjeta)} /></th>
-                                                                            <td width="27%">{`${item.nombre} ${item.apellidos}`}</td>
+                                                                            <th width="3%">
+                                                                                <input type="checkbox" 
+                                                                                    checked={arrTarjetas.includes(item.tarjeta) ? true : false}
+                                                                                    onChange={e=>onHandleChangeCheck(e.target.checked, item.tarjeta)} />
+                                                                            </th>
+                                                                            <td width="27%"><span onClick={e=>seeTrabajador(item.tarjeta, item.nombre)} className="hover-underline">{`${item.nombre} ${item.apellidos}`}</span></td>
                                                                             <td width="15%">{item.celular}</td>
                                                                             <td width="15%">{item.empresa}</td>
-                                                                            <td width="15%">{item.ciudad}, {item.pais}</td>
+                                                                            <td width="15%">{item.ciudad}{item.pais ? `, ${item.pais}` : ''}</td>
                                                                             <td width="10%">{item.visitas}</td>
                                                                             <td width="10%">{item.tarjeta}</td>
                                                                             <td width="5%">

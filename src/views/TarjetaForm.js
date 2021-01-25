@@ -13,6 +13,7 @@ import VistaEstadisticaForm from '../components/VistaEstadisticaForm';
 import { MdEdit } from "react-icons/md";
 import firebase from 'firebase/app'
 import 'firebase/storage'
+import { FaTrashAlt } from 'react-icons/fa';
 
 function TarjetaForm({auth, firebaseDB}){
     //console.log(firebaseDB)
@@ -61,13 +62,13 @@ function TarjetaForm({auth, firebaseDB}){
             setCiudades(citiesCollection.data().items);
         }
         const empresaData = async () =>{
-            const empresaDB = firebaseDB.collection('lke_trabaja').doc("trabajos");
+            const empresaDB = firebaseDB.collection('lke_trabaja').doc("minerva");
             const empresaCollection = await empresaDB.get();
             //console.log(citiesCollection.data().items)
             setEmpresas(empresaCollection.data().items);
         }
         const puestoData = async () =>{
-            const puestoDB = firebaseDB.collection('lke_puestos').doc("puestos");
+            const puestoDB = firebaseDB.collection('lke_puestos').doc("minerva");
             const puestoCollection = await puestoDB.get();
             //console.log(citiesCollection.data().items)
             setPuestos(puestoCollection.data().items);
@@ -153,23 +154,13 @@ function TarjetaForm({auth, firebaseDB}){
     const shemaValidate = Yup.object().shape({
         apellidos: Yup.string()
             .required('Campo Requerido'),
-        biografia: Yup.string()
-            .required('Campo Requerido'),
         celular: Yup.string()
-            .required('Campo Requerido'),
-        ciudad: Yup.string()
-            .required('Campo Requerido'),
-        cumpleanos: Yup.string()
-            .required('Campo Requerido'),
-        direccion: Yup.string()
-            .required('Campo Requerido'),   
+            .required('Campo Requerido'), 
         email: Yup.string()
             .required('Campo Requerido'),
         empresa: Yup.string()
             .required('Campo Requerido'),
         nombre: Yup.string()
-            .required('Campo Requerido'),
-        pais: Yup.string()
             .required('Campo Requerido'),
         puesto: Yup.string()
             .required('Campo Requerido'),
@@ -192,6 +183,33 @@ function TarjetaForm({auth, firebaseDB}){
         }
     }
 
+    const deleteImagen = () =>{
+        setSubmiting(true)
+        console.log(initialValues.imagen.key)
+        storage.ref('linkcardempresarial').child(initialValues.imagen.key).delete()
+        .then(response=>{
+            firebaseDB.collection("lke_trabajador").where('cliente', '==', process.env.REACT_APP_CLIENTE)
+            .where("tarjeta", '==', tarjetaCode).limit(1).get()
+            .then(resp=>{
+                let obj = {
+                    key: null,
+                    url: null
+                }
+                resp.forEach(item=>{
+                    item.ref.update({
+                        imagen: obj
+                    })
+                })
+                setInitialValues(prev => ({
+                    ...prev,
+                    imagen: obj
+                }))
+                setImgUserUrl(null)
+                setSubmiting(false)
+            })
+        })
+    }
+
     return(
         <>
          {  isSubmiting && LoaderRequest() }
@@ -212,14 +230,18 @@ function TarjetaForm({auth, firebaseDB}){
             </Modal>
             <Row className="mt-5 px-3">
                 <Col>
-                    <h4 className="tittle-tarjeta">Asignar tarjeta</h4>
+                    <h4 className="tittle-tarjeta">{`${tarjetaCode ? 'Editar' : 'Asignar'} tarjeta`} </h4>
                 </Col>
             </Row>
             <Row className="mt-5 px-3 mb-2">
                 <Col xs="4" md="4">
                     <Card className="border-0">
                     <Card.Img variant="top" src={imgUserUrl ? imgUserUrl : userDefault} className="imgCard" />
-                    <div className="edit-pic" onClick={handleShow}><MdEdit className="cursor-pointer text-primary"/></div>                    
+                    <div className="edit-pic" onClick={handleShow}><MdEdit className="cursor-pointer text-primary"/></div>
+                    {
+                        initialValues.imagen.key &&  <div className="edit-pic trash-pic" onClick={deleteImagen}><FaTrashAlt className="cursor-pointer text-danger"/></div>
+                    }
+                    
                     <Card.Body>
                         <Row className="mt-4 text-center">
                             <Col>
@@ -240,7 +262,7 @@ function TarjetaForm({auth, firebaseDB}){
                         </Row>}
                         {tarjetaCode && <Row className="my-3 justify-content-center">
                             <Col xs="9" lg="6">
-                                <Button variant={vista==="estadistica" ? "info" : "outline-info"} block onClick={e=>setVista("estadistica")}>Estadíticas</Button>
+                                <Button variant={vista==="estadistica" ? "info" : "outline-info"} block onClick={e=>setVista("estadistica")}>Estadísticas</Button>
                             </Col>
                         </Row>}
                     </Card.Body>
@@ -380,7 +402,7 @@ function TarjetaForm({auth, firebaseDB}){
                                                                 //console.log(response)
                                                                 setSubmiting(false)
                                                                 toast.success("Salvado correctamente", {autoClose: 3000})
-                                                                history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
+                                                                history.push(`/empresas/minerva/tarjetas/value?tarjeta=${d.tarjeta}`)  
                                                             })
                                                             .catch(error=>{
                                                                 //console.log(error)
@@ -393,7 +415,7 @@ function TarjetaForm({auth, firebaseDB}){
                                                     //console.log(response)
                                                     setSubmiting(false)
                                                     toast.success("Salvado correctamente", {autoClose: 3000})
-                                                    history.push(`/empresa/tarjetas/value?tarjeta=${d.tarjeta}`)  
+                                                    history.push(`/empresas/minerva/tarjetas/value?tarjeta=${d.tarjeta}`)  
                                                 })
                                                 .catch(error=>{
                                                     //console.log(error)

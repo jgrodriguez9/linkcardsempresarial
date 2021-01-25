@@ -25,11 +25,11 @@ function Dashboard(){
                 <Row>
                     <Col className="bg-gray">
                     <Switch>
-                        <Route exact path="/empresa"><Statistics auth={auth} firebaseDB={firebaseDB}/></Route>
-                        <Route exact path="/empresa/tarjetas"><TarjetaList auth={auth} firebaseDB={firebaseDB}/></Route>
-                        <Route exact path="/empresa/tarjetas/value"><TarjetaForm auth={auth} firebaseDB={firebaseDB}/></Route>
-                        <Route exact path="/empresa/media"><Media firebaseDB={firebaseDB}/></Route>
-                        <Route exact path="/empresa/top-tarjetas"><TopTarjetaList auth={auth} firebaseDB={firebaseDB}/></Route>
+                        <Route exact path="/empresas/minerva"><Statistics auth={auth} firebaseDB={firebaseDB}/></Route>
+                        <Route exact path="/empresas/minerva/tarjetas"><TarjetaList auth={auth} firebaseDB={firebaseDB}/></Route>
+                        <Route exact path="/empresas/minerva/tarjetas/value"><TarjetaForm auth={auth} firebaseDB={firebaseDB}/></Route>
+                        <Route exact path="/empresas/minerva/media"><Media firebaseDB={firebaseDB}/></Route>
+                        {/* <Route exact path="/empresas/minerva/top-tarjetas"><TopTarjetaList auth={auth} firebaseDB={firebaseDB}/></Route> */}
                     </Switch>
                     </Col>
                 </Row>

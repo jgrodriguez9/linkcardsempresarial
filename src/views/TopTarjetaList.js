@@ -88,16 +88,15 @@ function TopTarjetaList({auth, firebaseDB}){
             }
         }
         trabajadorData();
-
     }
 
     return(
         <>
             <Modal show={show} onHide={handleClose} size="lg">
-            <Modal.Header closeButton>
-              <Modal.Title>Detalle del trabajador</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+                <Modal.Header closeButton>
+                <Modal.Title>Detalle del trabajador</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
                 {
                     trabajador === null ?
                     <Row>
@@ -133,12 +132,12 @@ function TopTarjetaList({auth, firebaseDB}){
                         <dd className="col-sm-9">{trabajador.empresa}</dd>                        
                   </dl>
                 }
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="primary" onClick={handleClose}>
-                Aceptar
-              </Button>
-            </Modal.Footer>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={handleClose}>
+                    Aceptar
+                </Button>
+                </Modal.Footer>
           </Modal>
             
             

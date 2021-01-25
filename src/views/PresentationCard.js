@@ -65,6 +65,8 @@ export default function PresentationCard(){
                             })
                         }
                         
+                    }).catch(error=>{
+                        //console.log(error)
                     })
                            
                     

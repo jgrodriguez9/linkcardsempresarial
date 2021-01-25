@@ -10,7 +10,7 @@ import LoaderRequest from '../loader/LoaderRequest';
 
 
 export default function ImageFirebase({firebaseDB, item, setItem}){
-    //console.log(item)
+    console.log(item)
     const storage = firebase.storage()
     const [isSubmiting, setSubmiting] = useState(false)
     const [enabledEdit, setEnabledEdit] = useState(false)
@@ -45,6 +45,53 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                     setItem(prev => ({
                                         ...prev,
                                         foto_principal: obj
+                                    }))
+                                    setSubmiting(false)
+                                    toast.success("Acción exitosa", {autoClose: 3000})
+                                })                                
+                            })                            
+                            
+                          });
+                      });
+                }else{
+                    toast.info("No se encuentra el cliente. Intente más tarde por favor.", {autoClose: 5000})
+                }
+            })
+        }else{
+            toast.info("No es un archivo válido. Intente nuevamente por favor.", {autoClose: 5000})
+        }        
+    }
+
+    const handleCatalogo = (e) => {
+        const file = e.target.files[0]
+        console.log(file)
+        if(file.type === "application/pdf"){
+            setSubmiting(true)
+            if(item.catalogo.key!==null){
+                storage.ref('linkcardempresarial').child(item.catalogo.key).delete();
+            }
+            let name = `${file.name}${new Date().getTime()}`
+            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+            .then(response=>{
+                if(!response.empty){
+                    const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(file)
+                    uploadTask.on("state_changed", console.log, console.error, () => {
+                        storage
+                          .ref("linkcardempresarial")
+                          .child(name)
+                          .getDownloadURL()
+                          .then((url) => {
+                            let obj = {
+                                key: name,
+                                url: url
+                            }
+                            response.forEach(item=>{
+                                item.ref.update({
+                                    catalogo: obj
+                                }).then(r=>{
+                                    setItem(prev => ({
+                                        ...prev,
+                                        catalogo: obj
                                     }))
                                     setSubmiting(false)
                                     toast.success("Acción exitosa", {autoClose: 3000})
@@ -129,10 +176,37 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                             toast.success("Acción exitosa", {autoClose: 3000})
                         })                                
                     })  
-                })
-                
+                })                
             });
         }
+    }
+
+    const eliminarCatalogo = key =>{
+        setSubmiting(true)
+        storage.ref('linkcardempresarial').child(key).delete()
+        .then(response=>{
+            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+            .then(resp=>{
+                resp.forEach(item=>{
+                    item.ref.update({
+                        catalogo: {
+                            key: null,
+                            url: null
+                        }
+                    }).then(r=>{
+                        setItem(prev => ({
+                            ...prev,
+                            catalogo: {
+                                key: null,
+                                url: null
+                            }
+                        }))
+                        setSubmiting(false)
+                        toast.success("Acción exitosa", {autoClose: 3000})
+                    })                                
+                })  
+            })                
+        });
     }
   
 
@@ -157,10 +231,9 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                             <Col xs="12" lg="12">
                                 <h6 className="m-0">Foto de portada</h6>
                                 <small className="text-secondary d-block mb-2">Dimensiones sugeridas: 1440 x 300 px</small>
-
                                 <Image src={item.foto_principal ? item.foto_principal.url : portadaDefault} fluid className="mh-80" />
                             </Col>
-                            <Col xs="12" lg="12" className="mt-4">
+                            {enabledEdit && <Col xs="12" lg="12" className="mt-4">
                                 <form>
                                     <input 
                                         // allows you to reach into your file directory and upload image to the browser
@@ -168,7 +241,7 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                         onChange={handleImageAsFile}
                                     />
                                 </form>
-                            </Col>
+                            </Col>}
                         </Row>
                         <Row className="my-5">
                             <Col>
@@ -202,6 +275,25 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                 </div>}
                                 
                             </Col>
+                        </Row>
+                        <Row className="my-3">
+                            <Col xs="12" lg="12">
+                                <h6 className="m-0">Catálogo</h6>
+                                {item.catalogo.key ? 
+                                    <div>
+                                        <label className="d-block">{item.catalogo.key}</label>
+                                        {enabledEdit && <Button variant="outline-danger" size="sm" onClick={e=>eliminarCatalogo(item.catalogo.key)}>Eliminar catálogo</Button>}
+                                    </div> : <label>No hay información que mostrar</label>}
+                            </Col>   
+                            {enabledEdit && <Col xs="12" lg="12" className="mt-4">
+                                <form>
+                                    <input 
+                                        // allows you to reach into your file directory and upload image to the browser
+                                        type="file"
+                                        onChange={handleCatalogo}
+                                    />
+                                </form>
+                            </Col>}         
                         </Row>
                     </Card.Body>
                 </Card>

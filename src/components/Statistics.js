@@ -25,7 +25,7 @@ function Statistics({auth, firebaseDB}){
     const history = useHistory();
 
     const showAddTarjetas = e =>{
-        history.push("/empresa/tarjetas/value")
+        history.push("/empresas/minerva/tarjetas/value")
     }
 
     const [ubicacionList, setUbicacionList] = useState([])
@@ -559,13 +559,15 @@ function Statistics({auth, firebaseDB}){
                                     {
                                         topTarjetas.map((item,i)=>(
                                             <ListGroup.Item className="px-2" key={i}>
-                                                <div className="d-flex flex-row">
-                                                    <Image src={userDefault} rounded className="st-image pr-2"/>
+                                                <div className="d-flex justify-content-between">
                                                     <div>
-                                                    <span className="d-block fw-600 ft-14 hover-underline" onClick={e=>seeTrabajador(item.tarjeta, item.nombre)}>{item.nombre}</span>
-                                                    <span className="d-block ft-12">{item.puesto}</span>
+                                                        <span className="mr-4 ft-1-2rem">{i+1}</span>
+                                                        <span className="ft-1-2rem hover-underline" onClick={e=>seeTrabajador(item.tarjeta, item.nombre)}>{item.nombre}</span>
                                                     </div>
-                                                </div>
+                                                    <div>
+                                                        <span className="text-info float-right">{item.visualizaciones}</span>
+                                                    </div>
+                                                </div>                                                
                                             </ListGroup.Item>
                                         ))
                                     }

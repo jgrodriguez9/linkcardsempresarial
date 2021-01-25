@@ -70,3 +70,9 @@
         opacity: 1;
     }
 }
+
+@media (max-width: 576px) { 
+    .custom-ui {
+        width: auto;
+    }
+ }

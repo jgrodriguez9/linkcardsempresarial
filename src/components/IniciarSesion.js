@@ -19,9 +19,9 @@ function IniciarSesion({setSignup}){
     
     const shema = Yup.object().shape({
         email: Yup.string()
-            .required(),
+            .required("Campo requerido"),
         password: Yup.string()
-          .required(),    
+          .required("Campo requerido"),    
     });
     
 
@@ -42,7 +42,7 @@ function IniciarSesion({setSignup}){
                             res.forEach(item=>{
                                 if(item.data().activo){
                                     setAuthData(response.user)
-                                    history.push("/empresa")
+                                    history.push("/empresas/minerva")
                                 }else{
                                     auth.signOut()
                                     setMessage("Su usuario no está activado")                                    
