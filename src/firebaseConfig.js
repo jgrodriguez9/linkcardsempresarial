@@ -13,7 +13,7 @@ export const app = firebase.initializeApp({
 });
 
 
-//linkardempresarial
+//test
 // export const app = firebase.initializeApp({
 //   apiKey: "AIzaSyAWdLP997Ggw4fLBW8oo-kYrb9DtTyq1Ts",
 //   authDomain: "anderson-cf66d.firebaseapp.com",

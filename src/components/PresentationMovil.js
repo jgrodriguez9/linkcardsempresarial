@@ -21,7 +21,8 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
 
             <Container className="px-0 container-desktop container-mobile shadow-sm mb-3">
                 <div className="position-relative mb-3">
-                    <section className="bg-top bg-top-mobile" style={{backgroundImage: `url(${cliente.foto_principal.url})`}}></section>
+                    
+                    <Image src={cliente.foto_principal.url} fluid/>
                     {item.imagen.url && <Image src={item.imagen.url} className="img-desktop img-mobile" alt="Perfil imagen"/>}
                     
                 </div>
@@ -45,7 +46,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                                         <a href={item.direccion} target="blank" className="cl-body"><FaLocationArrow className="mb-1 mr-2" /> Abrir en ubicación en mapas</a>
                                     </li>}
                                 {cliente.catalogo.url && <li className="mb-3">
-                                    <a href={cliente.catalogo.url} target="blank" className="cl-body"><GrDocumentPdf className="mb-1 mr-2" /> Ver catálogo</a>
+                                    <a href={cliente.catalogo.url} target="blank" className="cl-body"><GrDocumentPdf className="mb-1 mr-2" /> {cliente.catalogo.name}</a>
                                 </li>}
                             </ul>
                         </Col>
@@ -82,20 +83,23 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" md="12">
-                            <h6 className="text-secondary mb-3">Galería</h6>
-                            <Row>
-                                {
-                                    cliente.fotos.map((item,i)=>(
-                                        <Col xs="6" md="6" key={i}>
-                                            <div className="h-200 mb-3">
-                                                <Image src={item.url} fluid className="img1"/>
-                                            </div>
-                                        </Col>
-                                    ))
-                                }                                    
-                            </Row>
-                        </Col>
+                        {
+                            cliente.fotos.length > 0 && 
+                            <Col xs="12" md="12">
+                                <h6 className="text-secondary mb-3">Galería</h6>
+                                <Row>
+                                    {
+                                        cliente.fotos.map((item,i)=>(
+                                            <Col xs="6" md="6" key={i}>
+                                                <div className="h-200 mb-3">
+                                                    <Image src={item.url} fluid className="img1"/>
+                                                </div>
+                                            </Col>
+                                        ))
+                                    }                                    
+                                </Row>
+                            </Col>
+                        }
                     </Row>
                 </Container>
             </Container>

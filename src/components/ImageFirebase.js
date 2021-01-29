@@ -14,6 +14,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
     const storage = firebase.storage()
     const [isSubmiting, setSubmiting] = useState(false)
     const [enabledEdit, setEnabledEdit] = useState(false)
+    const [nombreCatalogo, setNombreCatalogo] = useState("")
+    const [errorNC, setErrorNC] = useState(false)
 
     
     const handleImageAsFile = (e) => {
@@ -62,51 +64,58 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
         }        
     }
 
-    const handleCatalogo = (e) => {
-        const file = e.target.files[0]
-        console.log(file)
-        if(file.type === "application/pdf"){
-            setSubmiting(true)
-            if(item.catalogo.key!==null){
-                storage.ref('linkcardempresarial').child(item.catalogo.key).delete();
-            }
-            let name = `${file.name}${new Date().getTime()}`
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
-            .then(response=>{
-                if(!response.empty){
-                    const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(file)
-                    uploadTask.on("state_changed", console.log, console.error, () => {
-                        storage
-                          .ref("linkcardempresarial")
-                          .child(name)
-                          .getDownloadURL()
-                          .then((url) => {
-                            let obj = {
-                                key: name,
-                                url: url
-                            }
-                            response.forEach(item=>{
-                                item.ref.update({
-                                    catalogo: obj
-                                }).then(r=>{
-                                    setItem(prev => ({
-                                        ...prev,
-                                        catalogo: obj
-                                    }))
-                                    setSubmiting(false)
-                                    toast.success("Acción exitosa", {autoClose: 3000})
-                                })                                
-                            })                            
-                            
-                          });
-                      });
-                }else{
-                    toast.info("No se encuentra el cliente. Intente más tarde por favor.", {autoClose: 5000})
-                }
-            })
+    const handleCatalogo = (e) => {  
+        console.log(nombreCatalogo)      
+        if(nombreCatalogo===""){
+            setErrorNC(true)
         }else{
-            toast.info("No es un archivo válido. Intente nuevamente por favor.", {autoClose: 5000})
-        }        
+            setErrorNC(false)
+            const file = e.target.files[0]
+            console.log(file)
+            if(file!==undefined && file.type === "application/pdf"){
+                setSubmiting(true)
+                if(item.catalogo.key!==null){
+                    storage.ref('linkcardempresarial').child(item.catalogo.key).delete();
+                }
+                let name = `${file.name}${new Date().getTime()}`
+                firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+                .then(response=>{
+                    if(!response.empty){
+                        const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(file)
+                        uploadTask.on("state_changed", console.log, console.error, () => {
+                            storage
+                            .ref("linkcardempresarial")
+                            .child(name)
+                            .getDownloadURL()
+                            .then((url) => {
+                                let obj = {
+                                    key: name,
+                                    url: url,
+                                    name: nombreCatalogo
+                                }
+                                response.forEach(item=>{
+                                    item.ref.update({
+                                        catalogo: obj
+                                    }).then(r=>{
+                                        setItem(prev => ({
+                                            ...prev,
+                                            catalogo: obj
+                                        }))
+                                        setSubmiting(false)
+                                        toast.success("Acción exitosa", {autoClose: 3000})
+                                    })                                
+                                })                            
+                                
+                            });
+                        });
+                    }else{
+                        toast.info("No se encuentra el cliente. Intente más tarde por favor.", {autoClose: 5000})
+                    }
+                })
+                }else{
+                    toast.info("No es un archivo válido. Intente nuevamente por favor.", {autoClose: 5000})
+                }   
+            }     
     }
 
     const handleImageAsFileSecond = (e) => {
@@ -191,14 +200,16 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                     item.ref.update({
                         catalogo: {
                             key: null,
-                            url: null
+                            url: null,
+                            name: null
                         }
                     }).then(r=>{
                         setItem(prev => ({
                             ...prev,
                             catalogo: {
                                 key: null,
-                                url: null
+                                url: null,
+                                name: null
                             }
                         }))
                         setSubmiting(false)
@@ -287,6 +298,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                             </Col>   
                             {enabledEdit && <Col xs="12" lg="12" className="mt-4">
                                 <form>
+                                    <lable className="d-block">Nombre</lable>
+                                    <input type="text" className={`${errorNC && 'input-error'} form-control form-control-sm w-auto mb-2`} value={nombreCatalogo} onChange={e=>setNombreCatalogo(e.target.value)} />
                                     <input 
                                         // allows you to reach into your file directory and upload image to the browser
                                         type="file"

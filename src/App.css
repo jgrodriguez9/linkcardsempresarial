@@ -319,11 +319,12 @@ input.input-search{
 }
 .img-desktop{
     position: absolute;
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
-    top: 80%;
+    top: 84%;
     object-fit: cover;
+    left: 2%;
 }
 .pt-8rem{
     padding-top: 5rem;
@@ -360,8 +361,8 @@ body{
     background-position: center;
 }
 .img-mobile{
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
     left: 50%;
     transform: translate(-50%);
     object-fit: cover;
@@ -394,4 +395,8 @@ body{
 }
 .cl-body{
     color: #212529;
+}
+.bg-img-destop{
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
 }
