@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import firebase from 'firebase/app'
 import "firebase/firestore"
 import { useParams } from 'react-router-dom';
-import LoaderRequest from '../loader/LoaderRequest';
 import PresentationDesktop from '../components/PresentationDesktop';
 import { openTab } from '../utils/openTab';
 import PresentationMovil from '../components/PresentationMovil';
 import VCard from 'vcard-creator'
 import { getUrl } from '../utils/getUrl';
+import { LoaderFrontend } from '../loader/LoaderFrontend';
 
 export default function PresentationCard(){
     const mql = window.matchMedia('(max-width: 540px)');
@@ -16,14 +16,13 @@ export default function PresentationCard(){
     const { id } = useParams();
     const [item, setItem] = useState(null)
     const [cliente, setCliente] = useState(null)
-    console.log(id)
 
 
     useEffect(()=>{
         setSubmiting(true)
         const trabajadorData = async () =>{
             const trabajadorDB = firebaseDB.collection("lke_trabajador")
-            const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', id).limit(1).get();            
+            const trabajadorCollection = await trabajadorDB.where("tarjeta", '==', id).limit(1).get();         
             if(!trabajadorCollection.empty){
                 trabajadorCollection.forEach(doc=>{
                     let visitas = doc.data().visitas
@@ -110,8 +109,9 @@ export default function PresentationCard(){
     }
     
     const CreateVCard = () => {
+       // console.log(item)
         const vCard = new VCard()
-        var lastname = item.name
+        let lastname = `${item.nombre} ${item.apellidos}`
         vCard.addName(lastname)
         //vCard.addPhoto('https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black.png') 
         // add work data
@@ -120,14 +120,14 @@ export default function PresentationCard(){
         //vCard.addRole('Data Protection Officer')
         //vCard.addEmail('info@jeroendesloovere.be')
 
-        var phone = cliente.social_list.filter(item=>item.icon==='phone')
+        let phone = cliente.social_list.filter(item=>item.icon==='phone' && item.description!=="")
         vCard.addPhoneNumber(phone.length > 0 && phone[0].description, 'PREF;WORK')
         //vCard.addPhoneNumber(123456789, 'WORK')
 
         //var dir = item.social_list.filter(item=>item.icon==='ciudad')
         vCard.addAddress('', '', item.ciudad, item.pais, '', '', '')
 
-        cliente.social_list.forEach(element => {
+        cliente.social_list.filter(it=>it.description!=="").forEach(element => {
             if(element.icon !=='phone' && element.description!==""){
                 vCard.addURL(getUrl(element.description, element.icon))
             }
@@ -136,12 +136,12 @@ export default function PresentationCard(){
         //console.log(vCard.toString())
         const FileSaver = require('file-saver'); 
         const blob = new Blob([ vCard.toString() ], {type: "text/x-vCard;charset=utf-8"});
-        FileSaver.saveAs(blob, `${item.name}.vcf`);
+        FileSaver.saveAs(blob, `${lastname}.vcf`);
     };
    
     return (
         <>
-            { isSubmiting ? LoaderRequest()  : 
+            { isSubmiting ? LoaderFrontend()  : 
                 mql.matches ?
                 <PresentationMovil 
                     item={item} 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Col, Container, Image, Navbar, Row } from 'react-bootstrap';
-import { FaBirthdayCake, FaBriefcase, FaBuilding, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaBirthdayCake, FaBriefcase, FaBuilding, FaLocationArrow, FaMapMarkerAlt } from 'react-icons/fa';
 import { getIcon } from '../utils/getIcon';
 import moment from 'moment';
 import 'moment/locale/es' 
@@ -15,7 +15,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
         <>  
             <header className="mb-3">
                 <Navbar bg="light" expand="lg" className="justify-content-center">
-                    <a href="https://www.linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
+                    <a href="https://linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
                 </Navbar>
             </header>
 
@@ -28,7 +28,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                 </div>
 
                 <Container>
-                    <Row className={item.imagen.url ? "pt-7rem" : "pt-5"}>
+                    <Row className={item.imagen.url ? "pt-7rem" : "pt-2"}>
                         <Col xs="12" md="12" className="text-center">
                             <h5 className="font-weight-bold">{`${item.nombre} ${item.apellidos}`}</h5>
                             <p>{item.biografia}</p>
@@ -58,7 +58,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" md="12">
+                        {contacts.filter(x=>x.description!=="").length > 0 && <Col xs="12" md="12">
                             <h6 className="text-secondary mb-3">Datos de contacto</h6>
                             <ul className="list-unstyled">
                             {item.cumpleanos_activo && <li className="mb-3"><FaBirthdayCake className="mb-1 mr-2" /> {moment(item.cumpleanos, "YYYY-MM-DD").locale("es").format("DD MMMM")}</li>}
@@ -69,8 +69,8 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                                 }
                             </ul>
                             <hr />
-                        </Col>
-                        <Col xs="12" md="12">
+                        </Col>}
+                        {social.filter(x=>x.description!=="").length > 0 && <Col xs="12" md="12">
                             <h6 className="text-secondary mb-3">Redes Sociales</h6>
                             <ul className="list-unstyled">
                                 {
@@ -80,7 +80,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                                 }
                             </ul>
                             <hr />
-                        </Col>
+                        </Col>}
                     </Row>
                     <Row>
                         {

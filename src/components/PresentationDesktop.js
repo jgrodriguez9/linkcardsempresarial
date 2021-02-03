@@ -1,13 +1,12 @@
 import React from 'react';
 import { Button, Col, Container, Image, Navbar, Row } from 'react-bootstrap';
-import { FaBirthdayCake, FaBriefcase, FaBuilding, FaLocationArrow, FaMapMarkedAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaBirthdayCake, FaBriefcase, FaBuilding, FaLocationArrow, FaMapMarkerAlt } from 'react-icons/fa';
 import moment from 'moment';
 import 'moment/locale/es' 
 import { getIcon } from '../utils/getIcon';
 import { GrDocumentPdf } from 'react-icons/gr';
 
 export default function PresentationDesktop({item,cliente,handleClickSocial,CreateVCard}){
-    console.log(cliente)
     const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==="phone" || x.icon==="mail")
     const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
 
@@ -15,7 +14,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
         <>
             <header className="mb-3">
                 <Navbar bg="light" expand="lg" className="justify-content-center">
-                <a href="https://www.linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
+                <a href="https://linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
                 </Navbar>
             </header>
             <Container className="px-0 container-desktop shadow-sm mb-3">
@@ -25,7 +24,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                 </div>
                 <Container>
                 <Row>
-                    <Col xs="12" md={{span: "6", offset: item.imagen.url ? 3 : 0}}>
+                    <Col xs="12" md={{span: item.imagen.url ? 5 : 7, offset: item.imagen.url ? 2 : 0}}>
                         <h5>{`${item.nombre} ${item.apellidos}`}</h5>
                         <p>{item.biografia}</p>
                     </Col>
@@ -50,7 +49,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                                     </li>}
                                     
                                 </ul>
-                                <hr />
+                                {cliente.fotos.length > 0 && <hr />}
                             </Col>
                             {
                                 cliente.fotos.length > 0 && 
@@ -76,7 +75,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                     </Col>
                     <Col xs='5' md="5">
                         <Row>
-                            <Col xs="12" md="12">
+                            {contacts.filter(x=>x.description!=="").length > 0 && <Col xs="12" md="12">
                             <h6 className="text-secondary mb-3">Datos de contacto</h6>
                                 <ul className="list-unstyled">
                                 {item.cumpleanos_activo && <li className="mb-3"><FaBirthdayCake className="mb-1 mr-2" /> {moment(item.cumpleanos, "YYYY-MM-DD").locale("es").format("DD MMMM")}</li>}
@@ -87,8 +86,8 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                                     }
                                 </ul>
                                 <hr />
-                            </Col>
-                            <Col xs="12" md="12">
+                            </Col>}
+                            {social.filter(x=>x.description!=="").length > 0 && <Col xs="12" md="12">
                                 <h6 className="text-secondary mb-3">Redes Sociales</h6>
                                 <ul className="list-unstyled">
                                     {
@@ -97,7 +96,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                                         ))
                                     }
                                 </ul>
-                            </Col>
+                            </Col>}
                         </Row>
                     </Col>
                 </Row>

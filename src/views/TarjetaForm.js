@@ -67,12 +67,12 @@ function TarjetaForm({auth, firebaseDB}){
             //console.log(citiesCollection.data().items)
             setEmpresas(empresaCollection.data().items);
         }
-        const puestoData = async () =>{
-            const puestoDB = firebaseDB.collection('lke_puestos').doc("minerva");
-            const puestoCollection = await puestoDB.get();
-            //console.log(citiesCollection.data().items)
-            setPuestos(puestoCollection.data().items);
-        }
+        // const puestoData = async () =>{
+        //     const puestoDB = firebaseDB.collection('lke_puestos').doc("minerva");
+        //     const puestoCollection = await puestoDB.get();
+        //     //console.log(citiesCollection.data().items)
+        //     setPuestos(puestoCollection.data().items);
+        // }
         const paisData = async () =>{
             const paisDB = firebaseDB.collection('lke_pais').doc("paises");
             const paisesCollection = await paisDB.get();
@@ -146,7 +146,7 @@ function TarjetaForm({auth, firebaseDB}){
         }
         ciudadData()
         empresaData()
-        puestoData()
+        //puestoData()
         paisData()
         
     },[]);
@@ -485,7 +485,7 @@ function TarjetaForm({auth, firebaseDB}){
                                             </Col>  
                                             <Col xs="6" md="6">
                                                 <Form.Group>
-                                                    <Form.Label className="label-default">Lugar de trabajo</Form.Label>
+                                                    <Form.Label className="label-default">Lugar de trabajo / Departamento</Form.Label>
                                                     <Field as="select" name="empresa"  className={`${errors.empresa && 'input-error'} form-control input-default`}>
                                                         <option>Seleccionar opción</option>
                                                         {
@@ -501,7 +501,12 @@ function TarjetaForm({auth, firebaseDB}){
                                             <Col xs="6" md="6">
                                                 <Form.Group>
                                                     <Form.Label className="label-default">Puesto</Form.Label>
-                                                    <Field as="select" name="puesto"  className={`${errors.puesto && 'input-error'} form-control input-default`}>
+                                                    <Field 
+                                                        type="text" 
+                                                        name="puesto"
+                                                        className={`${errors.puesto && 'input-error'} form-control input-default`}
+                                                    />
+                                                    {/* <Field as="select" name="puesto"  className={`${errors.puesto && 'input-error'} form-control input-default`}>
                                                         <option>Seleccionar opción</option>
                                                         {
                                                             puestos.length > 0 &&
@@ -509,7 +514,7 @@ function TarjetaForm({auth, firebaseDB}){
                                                                 <option value={item} key={i}>{item}</option>
                                                             ))
                                                         }
-                                                    </Field>
+                                                    </Field> */}
                                                     {errors.puesto && <Form.Control.Feedback type="invalid" >{errors.puesto}</Form.Control.Feedback>}
                                                 </Form.Group>
                                             </Col>  
@@ -537,7 +542,7 @@ function TarjetaForm({auth, firebaseDB}){
                                             </Col>
                                             <Col xs="12" md="12">
                                                 <Form.Group className="mb-0">
-                                                    <Form.Label className="label-default">Dirección</Form.Label>
+                                                    <Form.Label className="label-default">Dirección (URL de Google Maps)</Form.Label>
                                                     <Field 
                                                         type="text"
                                                         className={`${errors.direccion && 'input-error'} form-control input-default`}
