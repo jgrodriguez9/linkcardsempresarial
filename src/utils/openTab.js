@@ -31,7 +31,7 @@ export const openTab = (profile, type, mobile) => {
             window.open(`https://www.instagram.com/${profile}`, '_blank')
             break;
         case 'youtube':
-            window.open(`https://www.youtube.com/user/${profile}`, '_blank')
+            window.open(`https://www.youtube.com/${profile}`, '_blank')
             break;
         case 'tiktok':
             window.open(`https://www.tiktok.com/${profile}`, '_blank')

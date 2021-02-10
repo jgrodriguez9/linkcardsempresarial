@@ -10,7 +10,7 @@ import LoaderRequest from '../loader/LoaderRequest';
 
 
 export default function ImageFirebase({firebaseDB, item, setItem}){
-    console.log(item)
+    //console.log(item)
     const storage = firebase.storage()
     const [isSubmiting, setSubmiting] = useState(false)
     const [enabledEdit, setEnabledEdit] = useState(false)
@@ -298,7 +298,7 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                             </Col>   
                             {enabledEdit && <Col xs="12" lg="12" className="mt-4">
                                 <form>
-                                    <lable className="d-block">Nombre</lable>
+                                    <label className="d-block">Nombre</label>
                                     <input type="text" className={`${errorNC && 'input-error'} form-control form-control-sm w-auto mb-2`} value={nombreCatalogo} onChange={e=>setNombreCatalogo(e.target.value)} />
                                     <input 
                                         // allows you to reach into your file directory and upload image to the browser

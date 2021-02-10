@@ -154,8 +154,6 @@ function TarjetaForm({auth, firebaseDB}){
     const shemaValidate = Yup.object().shape({
         apellidos: Yup.string()
             .required('Campo Requerido'),
-        celular: Yup.string()
-            .required('Campo Requerido'), 
         email: Yup.string()
             .required('Campo Requerido'),
         empresa: Yup.string()

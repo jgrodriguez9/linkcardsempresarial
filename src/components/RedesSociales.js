@@ -18,34 +18,33 @@ import linkedin from '../images/social/linkedin.svg'
 import { toast } from 'react-toastify';
 import LoaderRequest from '../loader/LoaderRequest';
 import behance from '../images/social/behance.svg'
-import phone from '../images/social/phone.svg'
-import mail from '../images/social/mail.svg'
+import { getContentDB } from '../utils/getContentDB';
 
-export default function RedesSociales({firebaseDB}){
+export default function RedesSociales({firebaseDB, item, setItem}){
     const [enabledEdit, setEnabledEdit] = useState(false)
-    const [inputphone,setInputphone] = useState("")
-    const [inputmail,setInputmail] = useState("")
-    const [inputWatsaap,setInputWaatsap] = useState("")
-    const [inputPW,setInputPW] = useState("")
-    const [inputFacebook,setInputFacebook] = useState("")
-    const [inputtwitter,setInputtwitter] = useState("")
-    const [inputinstagram,setInputinstagram] = useState("")
-    const [inputiktok,setInputiktok] = useState("")
-    const [inputpinterest,setInputpinterest] = useState("")
-    const [inputyoutube,setInputyoutube] = useState("")
-    const [inputtelegram,setInputtelegram] = useState("")
-    const [inputsky,setInputsky] = useState("")
-    const [inputflickr,setInputflickr] = useState("")
-    const [inputsoundcloud,setInputsoundcloud] = useState("")
-    const [inputspotify,setInputspotify] = useState("")
-    const [inputtripadvisor,setInputtripadvisor] = useState("")
-    const [inputlinkedin,setInputlinkedin] = useState("")
-    const [inputbehance,setInputbehance] = useState("")
+    // const [inputphone,setInputphone] = useState("")
+    // const [inputmail,setInputmail] = useState("")
+    const [inputWatsaap,setInputWaatsap] = useState(getContentDB(item.social_list, 'whatsapp'))
+    const [inputPW,setInputPW] = useState(getContentDB(item.social_list, 'site'))
+    const [inputFacebook,setInputFacebook] = useState(getContentDB(item.social_list, 'facebook'))
+    const [inputtwitter,setInputtwitter] = useState(getContentDB(item.social_list, 'twitter'))
+    const [inputinstagram,setInputinstagram] = useState(getContentDB(item.social_list, 'instagram'))
+    const [inputiktok,setInputiktok] = useState(getContentDB(item.social_list, 'tiktok'))
+    const [inputpinterest,setInputpinterest] = useState(getContentDB(item.social_list, 'pinterest'))
+    const [inputyoutube,setInputyoutube] = useState(getContentDB(item.social_list, 'youtube'))
+    const [inputtelegram,setInputtelegram] = useState(getContentDB(item.social_list, 'telegram'))
+    const [inputsky,setInputsky] = useState(getContentDB(item.social_list, 'skype'))
+    const [inputflickr,setInputflickr] = useState(getContentDB(item.social_list, 'flickr'))
+    const [inputsoundcloud,setInputsoundcloud] = useState(getContentDB(item.social_list, 'soundcloud'))
+    const [inputspotify,setInputspotify] = useState(getContentDB(item.social_list, 'spotify'))
+    const [inputtripadvisor,setInputtripadvisor] = useState(getContentDB(item.social_list, 'tripadvisor'))
+    const [inputlinkedin,setInputlinkedin] = useState(getContentDB(item.social_list, 'linkedin'))
+    const [inputbehance,setInputbehance] = useState(getContentDB(item.social_list, 'behance'))
     const [isSubmiting, setSubmiting] = useState(false);
 
     const salvar = e =>{
         setSubmiting(true)
-        let ar = ["mail","phone","site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
+        let ar = ["site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
                  "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin", "behance"]
         
 
@@ -91,10 +90,10 @@ export default function RedesSociales({firebaseDB}){
         switch(elem){
             case "site":
                 return inputPW;
-            case "phone":
-                    return inputphone;
-            case "mail":
-                    return inputmail;
+            // case "phone":
+            //         return inputphone;
+            // case "mail":
+            //         return inputmail;
             case "whatsapp":
                 return inputWatsaap;
             case "facebook":
@@ -150,7 +149,7 @@ export default function RedesSociales({firebaseDB}){
                                 
                             </div>
                             <Row className="my-3">
-                                <Col xs="6" lg="4">
+                                {/* <Col xs="6" lg="4">
                                     <ul className="list-unstyled my-4">
                                         <li className="media border-bottom pb-3">
                                             <Image  src={phone} alt="WathSaap" fluid className="mr-3"/>
@@ -184,7 +183,7 @@ export default function RedesSociales({firebaseDB}){
                                             </div>
                                         </li>
                                     </ul>
-                                </Col>
+                                </Col> */}
                                 <Col xs="6" lg="4">
                                     <ul className="list-unstyled my-4">
                                         <li className="media border-bottom pb-3">
@@ -197,7 +196,13 @@ export default function RedesSociales({firebaseDB}){
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputWatsaap} 
-                                                    onChange={e=>setInputWaatsap(e.target.value)}
+                                                    onChange={e=>{
+                                                            const re = /^[0-9 -]+$/;
+                                                            if(e.target.value==='' || re.test(e.target.value)){
+                                                                setInputWaatsap(e.target.value)
+                                                            }                                                            
+                                                        }
+                                                    }
                                                 />
                                             </div>
                                         </li>

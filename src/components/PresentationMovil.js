@@ -5,10 +5,13 @@ import { getIcon } from '../utils/getIcon';
 import moment from 'moment';
 import 'moment/locale/es' 
 import { GrDocumentPdf } from 'react-icons/gr';
+import { getNombreRS } from '../utils/getNombreRS';
 
 export  default function PresentationMovil({item,cliente,handleClickSocial,CreateVCard}){
 
-    const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==="phone" || x.icon==="mail")
+    const contacts = cliente.social_list.filter(x=>x.icon==="site")
+    contacts.push({icon: "phone", description: `+52 1 ${item.celular}`, click: 0})
+    contacts.push({description: item.email, icon: "mail", click: 0})
     const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
 
     return(
@@ -43,7 +46,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                                 <li className="mb-3"><FaBuilding className="mb-1 mr-2" /> {item.empresa}</li>
                                 {(item.ciudad && item.pais) && <li className="mb-3"><FaMapMarkerAlt className="mb-1 mr-2"/> {item.ciudad}{item.pais ? `, ${item.pais}`  : ''}</li> }
                                 {item.direccion_activa && <li className="mb-3">
-                                        <a href={item.direccion} target="blank" className="cl-body"><FaLocationArrow className="mb-1 mr-2" /> Abrir en ubicación en mapas</a>
+                                        <a href={item.direccion} target="blank" className="cl-body"><FaLocationArrow className="mb-1 mr-2" /> Abrir ubicación en Mapas</a>
                                     </li>}
                                 {cliente.catalogo.url && <li className="mb-3">
                                     <a href={cliente.catalogo.url} target="blank" className="cl-body"><GrDocumentPdf className="mb-1 mr-2" /> {cliente.catalogo.name}</a>
@@ -64,7 +67,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                             {item.cumpleanos_activo && <li className="mb-3"><FaBirthdayCake className="mb-1 mr-2" /> {moment(item.cumpleanos, "YYYY-MM-DD").locale("es").format("DD MMMM")}</li>}
                                 {
                                     contacts.filter(x=>x.description!=="").map((item,i)=>(
-                                        <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
+                                        <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {getNombreRS(item.icon)}</li>
                                     ))
                                 }
                             </ul>
@@ -75,7 +78,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                             <ul className="list-unstyled">
                                 {
                                     social.filter(x=>x.description!=="").map((item,i)=>(
-                                        <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {item.description}</li>
+                                        <li key={i} className="mb-3 cursor-pointer" onClick={e=>handleClickSocial(item.icon, item.description)}>{getIcon(item.icon, "mb-1 mr-2")} {getNombreRS(item.icon)}</li>
                                     ))
                                 }
                             </ul>

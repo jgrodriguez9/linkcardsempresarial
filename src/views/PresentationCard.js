@@ -79,33 +79,38 @@ export default function PresentationCard(){
 
     const  handleClickSocial = (type, description)=>{
         setSubmiting(true)
-        firebaseDB.collection('lke_trabajador').where("tarjeta", '==', id).limit(1).get()
-        .then(response=>{
-            response.forEach(elemento=>{
-                let social = elemento.data().social_list
-                const index = social.findIndex(item => item.icon === type)
-                if(index >= 0){
-                    social[index].click = social[index].click+1
-                    social[index].description = description
-                    elemento.ref.update({
-                        social_list: social
-                    })
-                }else{
-                    let obj = {
-                        click: 1,
-                        icon: type,
-                        description: description
+        if(type==='phone' || type==='mail'){
+            setSubmiting(false)
+            openTab(description, type, mql.matches)
+        }else{
+            firebaseDB.collection('lke_trabajador').where("tarjeta", '==', id).limit(1).get()
+            .then(response=>{
+                response.forEach(elemento=>{
+                    let social = elemento.data().social_list
+                    const index = social.findIndex(item => item.icon === type)
+                    if(index >= 0){
+                        social[index].click = social[index].click+1
+                        social[index].description = description
+                        elemento.ref.update({
+                            social_list: social
+                        })
+                    }else{
+                        let obj = {
+                            click: 1,
+                            icon: type,
+                            description: description
+                        }
+                        social.push(obj)
+                        elemento.ref.update({
+                            social_list: social
+                        })
                     }
-                    social.push(obj)
-                    elemento.ref.update({
-                        social_list: social
-                    })
-                }
-                setSubmiting(false)
-                openTab(description, type, mql.matches)
+                    setSubmiting(false)
+                    openTab(description, type, mql.matches)
+                })            
             })
-            
-        })
+        }
+        
     }
     
     const CreateVCard = () => {
@@ -120,8 +125,10 @@ export default function PresentationCard(){
         //vCard.addRole('Data Protection Officer')
         //vCard.addEmail('info@jeroendesloovere.be')
 
-        let phone = cliente.social_list.filter(item=>item.icon==='phone' && item.description!=="")
-        vCard.addPhoneNumber(phone.length > 0 && phone[0].description, 'PREF;WORK')
+        if(item.celular && item.celular !== ""){
+            vCard.addPhoneNumber(item.celular, 'PREF;WORK')
+        }
+        
         //vCard.addPhoneNumber(123456789, 'WORK')
 
         //var dir = item.social_list.filter(item=>item.icon==='ciudad')
