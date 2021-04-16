@@ -2,6 +2,7 @@ import React from 'react';
 import { FaBehance, FaEnvelope, FaFacebookF, FaFlickr, FaGooglePlusG, FaInstagram, FaLaptop, FaLink, FaLinkedin, FaMapMarkerAlt, FaPhoneAlt, FaPinterest, FaSkype, FaSpotify, FaTelegram, FaTripadvisor, FaTwitter, FaVimeoV, FaWhatsapp, FaYoutube } from 'react-icons/fa';
 import { SiTiktok } from "react-icons/si";
 import { GrSoundcloud } from "react-icons/gr";
+import { MdSmartphone } from 'react-icons/md';
 
 export const getIcon = (icon, clase) =>{
     switch(icon){
@@ -25,6 +26,8 @@ export const getIcon = (icon, clase) =>{
             return <FaLinkedin className={clase} />
         case 'phone':
             return <FaPhoneAlt className={clase} />
+        case 'cel':
+            return <MdSmartphone className={clase} />
         case 'mail':
             return <FaEnvelope className={clase} />
         case 'skype':

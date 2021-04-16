@@ -13,12 +13,11 @@ export default function Media({firebaseDB}){
 
     useEffect(()=>{
         setLoading(true) 
-        firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+        firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE).get()
         .then(response=>{
-            if(!response.empty){
-                response.forEach(it=>{
-                    setItem(it.data())
-                })     
+            //console.log(response.exists)
+            if(response.exists){
+                setItem(response.data())
                 setLoading(false) 
             }
         })

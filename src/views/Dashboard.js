@@ -11,7 +11,6 @@ import "firebase/firestore"
 import 'firebase/auth'
 import TarjetaForm from './TarjetaForm';
 import TarjetaList from './TarjetaList';
-import TopTarjetaList from './TopTarjetaList';
 import Media from './Media';
 
 function Dashboard(){

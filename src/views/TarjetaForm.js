@@ -14,6 +14,7 @@ import { MdEdit } from "react-icons/md";
 import firebase from 'firebase/app'
 import 'firebase/storage'
 import { FaTrashAlt } from 'react-icons/fa';
+import moment from 'moment'
 
 function TarjetaForm({auth, firebaseDB}){
     //console.log(firebaseDB)
@@ -56,19 +57,19 @@ function TarjetaForm({auth, firebaseDB}){
     useEffect(() => {
         //console.log(tarjetaCode)        
         const ciudadData = async () =>{
-            const citiesDB = firebaseDB.collection('lke_ciudad').doc("ciudades");
+            const citiesDB = firebaseDB.collection('lke_ciudad').doc(process.env.REACT_APP_CLIENTE);
             const citiesCollection = await citiesDB.get();
             //console.log(citiesCollection.data().items)
             setCiudades(citiesCollection.data().items);
         }
         const empresaData = async () =>{
-            const empresaDB = firebaseDB.collection('lke_trabaja').doc("minerva");
+            const empresaDB = firebaseDB.collection('lke_trabaja').doc(process.env.REACT_APP_CLIENTE);
             const empresaCollection = await empresaDB.get();
             //console.log(citiesCollection.data().items)
             setEmpresas(empresaCollection.data().items);
         }
         // const puestoData = async () =>{
-        //     const puestoDB = firebaseDB.collection('lke_puestos').doc("minerva");
+        //     const puestoDB = firebaseDB.collection('lke_puestos').doc("demo");
         //     const puestoCollection = await puestoDB.get();
         //     //console.log(citiesCollection.data().items)
         //     setPuestos(puestoCollection.data().items);
@@ -589,6 +590,8 @@ function TarjetaForm({auth, firebaseDB}){
                                                         type="date"
                                                         className={`${errors.cumpleanos && 'input-error'} form-control input-default`}
                                                         name="cumpleanos"
+                                                        min={moment().subtract(99, 'year').format('YYYY-12-31')}
+                                                        max={moment().subtract(13, 'year').format('YYYY-12-31')}
                                                     />
                                                     {errors.cumpleanos && <Form.Control.Feedback type="invalid" >{errors.cumpleanos}</Form.Control.Feedback>}
                                                 </Form.Group>

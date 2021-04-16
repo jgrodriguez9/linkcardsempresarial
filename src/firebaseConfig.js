@@ -22,7 +22,7 @@ export const app = firebase.initializeApp({
   storageBucket: "anderson-cf66d.appspot.com",
   messagingSenderId: "768352999767",
   appId: "1:768352999767:web:5f4a31f45618e0b5308612"
-  });
+});
 
   
 export default app;

@@ -11,6 +11,7 @@ import youtube from '../images/social/youtube.svg'
 import telegram from '../images/social/telegram.svg'
 import sky from '../images/social/sky.svg'
 import flickr from '../images/social/flickr.svg'
+import phone from '../images/social/phone.svg'
 import soundcloud from '../images/social/soundcloud.svg'
 import spotify from '../images/social/spotify.svg'
 import tripadvisor from '../images/social/tripadvisor.svg'
@@ -22,7 +23,7 @@ import { getContentDB } from '../utils/getContentDB';
 
 export default function RedesSociales({firebaseDB, item, setItem}){
     const [enabledEdit, setEnabledEdit] = useState(false)
-    // const [inputphone,setInputphone] = useState("")
+    const [inputphone,setInputphone] = useState(getContentDB(item.social_list, 'phone'))
     // const [inputmail,setInputmail] = useState("")
     const [inputWatsaap,setInputWaatsap] = useState(getContentDB(item.social_list, 'whatsapp'))
     const [inputPW,setInputPW] = useState(getContentDB(item.social_list, 'site'))
@@ -44,34 +45,32 @@ export default function RedesSociales({firebaseDB, item, setItem}){
 
     const salvar = e =>{
         setSubmiting(true)
-        let ar = ["site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
+        let ar = ["phone", "site", "whatsapp", "facebook", "twitter","instagram","tiktok","pinterest",
                  "youtube","telegram","skype","flickr","soundcloud","spotify","tripadvisor","linkedin", "behance"]
         
 
-        let socialDB = firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE)
-        socialDB.limit(1).get().then(response=>{
+        let fRefSocial = firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE)
+        fRefSocial.get().then(response=>{
             // console.log(response)
             // console.log(response.empty)
             let social_list = []
-            if(!response.empty){
-                response.forEach(item=>{
-                    social_list = item.data().social_list
-                    ar.forEach(elem=>{
-                        let index = social_list.findIndex(item => item.icon === elem)
-                        if(index>=0){
-                            social_list[index].description = getDescription(elem)
-                        }else{
-                            let obj = {
-                                click: 0,
-                                icon: elem,
-                                description: getDescription(elem)
-                            }
-                            social_list.push(obj);
+            if(response.exists){
+                social_list = response.data().social_list
+                ar.forEach(elem=>{
+                    let index = social_list.findIndex(item => item.icon === elem)
+                    if(index>=0){
+                        social_list[index].description = getDescription(elem)
+                    }else{
+                        let obj = {
+                            click: 0,
+                            icon: elem,
+                            description: getDescription(elem)
                         }
-                    })
-                    item.ref.update({
-                        social_list: social_list
-                    })
+                        social_list.push(obj);
+                    }
+                })
+                fRefSocial.update({
+                    social_list: social_list
                 })
                 toast.success("Acción exitosa", {autoClose: 3000})
                 setEnabledEdit(false)
@@ -90,8 +89,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
         switch(elem){
             case "site":
                 return inputPW;
-            // case "phone":
-            //         return inputphone;
+            case "phone":
+                    return inputphone;
             // case "mail":
             //         return inputmail;
             case "whatsapp":
@@ -149,15 +148,14 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                 
                             </div>
                             <Row className="my-3">
-                                {/* <Col xs="6" lg="4">
+                                <Col xs="6" lg="4">
                                     <ul className="list-unstyled my-4">
                                         <li className="media border-bottom pb-3">
                                             <Image  src={phone} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
-                                            <h5 className="mt-0 mb-1">Teléfono</h5>
-                                            <strong>+52 1</strong> 
+                                            <h5 className="mt-0 mb-1">Teléfono de oficina</h5>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputphone} 
@@ -167,7 +165,7 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                         </li>
                                     </ul>
                                 </Col>
-                                <Col xs="6" lg="4">
+                                {/*<Col xs="6" lg="4">
                                     <ul className="list-unstyled my-4">
                                         <li className="media border-bottom pb-3">
                                             <Image  src={mail} alt="WathSaap" fluid className="mr-3"/>
@@ -190,20 +188,21 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={watsaap} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Whatsapp</h5>
-                                            <strong>+52 1</strong> 
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputWatsaap} 
-                                                    onChange={e=>{
-                                                            const re = /^[0-9 -]+$/;
-                                                            if(e.target.value==='' || re.test(e.target.value)){
-                                                                setInputWaatsap(e.target.value)
-                                                            }                                                            
-                                                        }
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                placeholder="+52 998 659 6545"
+                                                value={inputWatsaap} 
+                                                onChange={e=>{setInputWaatsap(e.target.value)
+                                                        // const re = /^(\+|\d)[0-9]{7,16}$/;
+                                                        // console.log(re.test(e.target.value))
+                                                        // if(e.target.value==='' || re.test(e.target.value)){
+                                                            
+                                                        // }                                                            
                                                     }
-                                                />
+                                                }
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -213,15 +212,14 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                         <li className="media border-bottom pb-3">
                                             <Image  src={site} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
-                                            <h5 className="mt-0 mb-1">Página Web</h5>
-                                            <strong>https://www.</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputPW} 
-                                                    onChange={e=>setInputPW(e.target.value)}
-                                                />
+                                            <h5 className="mt-0 mb-1">Página Web</h5>                                            
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputPW} 
+                                                onChange={e=>setInputPW(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -232,14 +230,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={facebook} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Facebook</h5>
-                                            <strong>www.facebook.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputFacebook} 
-                                                    onChange={e=>setInputFacebook(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputFacebook} 
+                                                onChange={e=>setInputFacebook(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -250,14 +247,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={twitter} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Twitter</h5>
-                                            <strong>www.twitter.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputtwitter} 
-                                                    onChange={e=>setInputtwitter(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputtwitter} 
+                                                onChange={e=>setInputtwitter(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -268,14 +264,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={instagram} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Instagram</h5>
-                                            <strong>www.instagram.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputinstagram} 
-                                                    onChange={e=>setInputinstagram(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputinstagram} 
+                                                onChange={e=>setInputinstagram(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -286,14 +281,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={tiktok} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">TikTok</h5>
-                                            <strong>www.tiktok.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputiktok} 
-                                                    onChange={e=>setInputiktok(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputiktok} 
+                                                onChange={e=>setInputiktok(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -304,14 +298,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={pinterest} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Pinterest</h5>
-                                            <strong>www.pinterest.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputpinterest} 
-                                                    onChange={e=>setInputpinterest(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputpinterest} 
+                                                onChange={e=>setInputpinterest(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -322,14 +315,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={youtube} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Youtube</h5>
-                                            <strong>www.youtube.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputyoutube} 
-                                                    onChange={e=>setInputyoutube(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputyoutube} 
+                                                onChange={e=>setInputyoutube(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -340,14 +332,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={linkedin} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">LinkedIn</h5>
-                                            <strong>www.linkedin.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputlinkedin} 
-                                                    onChange={e=>setInputlinkedin(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputlinkedin} 
+                                                onChange={e=>setInputlinkedin(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -358,14 +349,13 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={telegram} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Telegram</h5>
-                                            <strong>www.telegram.com/</strong>
-                                                <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
-                                                    disabled={!enabledEdit} 
-                                                    type="text" 
-                                                    value={inputtelegram} 
-                                                    onChange={e=>setInputtelegram(e.target.value)}
-                                                />
+                                            <input 
+                                                className="form-control form-control-sm w-100 d-inline" 
+                                                disabled={!enabledEdit} 
+                                                type="text" 
+                                                value={inputtelegram} 
+                                                onChange={e=>setInputtelegram(e.target.value)}
+                                            />
                                             </div>
                                         </li>
                                     </ul>
@@ -376,9 +366,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={sky} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Skype</h5>
-                                            <strong>www.skype.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputsky} 
@@ -394,9 +383,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={flickr} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Flickr</h5>
-                                            <strong>www.flickr.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputflickr} 
@@ -412,9 +400,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={soundcloud} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">SoundCloud</h5>
-                                            <strong>www.soundcloud.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputsoundcloud} 
@@ -430,9 +417,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={spotify} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Spotify</h5>
-                                            <strong>www.spotify.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputspotify} 
@@ -448,9 +434,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={tripadvisor} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Tripadvisor</h5>
-                                            <strong>www.tripadvisor.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputtripadvisor} 
@@ -466,9 +451,8 @@ export default function RedesSociales({firebaseDB, item, setItem}){
                                             <Image  src={behance} alt="WathSaap" fluid className="mr-3"/>
                                             <div className="media-body">
                                             <h5 className="mt-0 mb-1">Behance</h5>
-                                            <strong>www.behance.com/</strong>
                                                 <input 
-                                                    className="form-control form-control-sm w-auto d-inline" 
+                                                    className="form-control form-control-sm w-100 d-inline" 
                                                     disabled={!enabledEdit} 
                                                     type="text" 
                                                     value={inputbehance} 

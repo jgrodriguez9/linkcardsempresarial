@@ -21,7 +21,9 @@ export const getNombreRS = icon =>{
         case 'linkedin':
             return "LinkedIn"
         case 'phone':
-            return "Teléfono"
+            return "Teléfono de oficina"
+        case 'cel':
+            return "Celular"
         case 'mail':
             return "Correo electrónico"
         case 'skype':

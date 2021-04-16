@@ -7,22 +7,22 @@ import { getIcon } from '../utils/getIcon';
 import { GrDocumentPdf } from 'react-icons/gr';
 import { getNombreRS } from '../utils/getNombreRS';
 
-export default function PresentationDesktop({item,cliente,handleClickSocial,CreateVCard}){
-    const contacts = cliente.social_list.filter(x=>x.icon==="site")
-    contacts.push({icon: "phone", description: `+52 1 ${item.celular}`, click: 0})
+export default function PresentationDesktop({item,cliente,handleClickSocial, urlFile}){
+    const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==='phone')
+    contacts.push({icon: "cel", description: `${item.celular}`, click: 0})
     contacts.push({description: item.email, icon: "mail", click: 0})
     const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
 
-    console.log(contacts)
+    //console.log(contacts)
 
     return(
         <>
-            <header className="mb-3">
+            {/* <header className="mb-3">
                 <Navbar bg="light" expand="lg" className="justify-content-center">
                 <a href="https://linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
                 </Navbar>
-            </header>
-            <Container className="px-0 container-desktop shadow-sm mb-3">
+            </header> */}
+            <Container className="px-0 container-desktop shadow-sm my-3">
                 <div className="position-relative mb-3">                    
                     <Image src={cliente.foto_principal.url} fluid className="bg-img-destop"/>
                     {item.imagen.url && <Image src={item.imagen.url} className="img-desktop" alt="Perfil imagen"/>}
@@ -34,7 +34,7 @@ export default function PresentationDesktop({item,cliente,handleClickSocial,Crea
                         <p>{item.biografia}</p>
                     </Col>
                     <Col xs="12" md="3">
-                        <Button variant="info" block onClick={CreateVCard}>Agregar a contactos</Button>
+                        <a href={urlFile ? urlFile : '#'} className="btn btn-block btn-info">Agregar a contactos</a>
                     </Col>
                 </Row>
                 <Row className="pt-8rem">

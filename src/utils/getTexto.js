@@ -21,7 +21,7 @@ export const getTexto = (icon) =>{
         case 'linkedin':
             return 'Linkedin'
         case 'phone':
-            return 'Teléfono';
+            return 'Teléfono de oficina';
         case 'mail':
             return 'Correo elextrónico'
         case 'skype':

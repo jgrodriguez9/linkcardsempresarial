@@ -7,22 +7,22 @@ import 'moment/locale/es'
 import { GrDocumentPdf } from 'react-icons/gr';
 import { getNombreRS } from '../utils/getNombreRS';
 
-export  default function PresentationMovil({item,cliente,handleClickSocial,CreateVCard}){
+export  default function PresentationMovil({item,cliente,handleClickSocial,urlFile}){
 
-    const contacts = cliente.social_list.filter(x=>x.icon==="site")
-    contacts.push({icon: "phone", description: `+52 1 ${item.celular}`, click: 0})
+    const contacts = cliente.social_list.filter(x=>x.icon==="site" || x.icon==='phone')
+    contacts.push({icon: "cel", description: `${item.celular}`, click: 0})
     contacts.push({description: item.email, icon: "mail", click: 0})
     const social = cliente.social_list.filter(x=>x.icon!=="site" && x.icon!=="phone" && x.icon!=="mail")
 
     return(
         <>  
-            <header className="mb-3">
+            {/* <header className="mb-3">
                 <Navbar bg="light" expand="lg" className="justify-content-center">
                     <a href="https://linkcards.mx/tienda/" target="blank" className="btn btn-info">Compra tu Linkcard</a>
                 </Navbar>
-            </header>
+            </header> */}
 
-            <Container className="px-0 container-desktop container-mobile shadow-sm mb-3">
+            <Container className="px-0 container-desktop container-mobile shadow-sm my-3">
                 <div className="position-relative mb-3">
                     
                     <Image src={cliente.foto_principal.url} fluid/>
@@ -56,7 +56,7 @@ export  default function PresentationMovil({item,cliente,handleClickSocial,Creat
                     </Row>
                     <Row>
                         <Col xs="12" md="3">
-                            <Button variant="info" block onClick={CreateVCard}>Agregar a contactos</Button>
+                        <a href={urlFile ? urlFile : '#'} className="btn btn-block btn-info">Agregar a contactos</a>
                             <hr />
                         </Col>
                     </Row>

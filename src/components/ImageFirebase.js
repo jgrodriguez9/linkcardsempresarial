@@ -26,7 +26,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                 storage.ref('linkcardempresarial').child(item.foto_principal.key).delete();
             }
             let name = `${image.name}${new Date().getTime()}`
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+            const fRef = firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE)
+            fRef.get()
             .then(response=>{
                 if(!response.empty){
                     const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(image)
@@ -40,19 +41,17 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                 key: name,
                                 url: url
                             }
-                            response.forEach(item=>{
-                                item.ref.update({
+
+                            fRef.update({
+                                foto_principal: obj
+                            }).then(r=>{
+                                setItem(prev => ({
+                                    ...prev,
                                     foto_principal: obj
-                                }).then(r=>{
-                                    setItem(prev => ({
-                                        ...prev,
-                                        foto_principal: obj
-                                    }))
-                                    setSubmiting(false)
-                                    toast.success("Acción exitosa", {autoClose: 3000})
-                                })                                
-                            })                            
-                            
+                                }))
+                                setSubmiting(false)
+                                toast.success("Acción exitosa", {autoClose: 3000})
+                            })
                           });
                       });
                 }else{
@@ -78,7 +77,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                     storage.ref('linkcardempresarial').child(item.catalogo.key).delete();
                 }
                 let name = `${file.name}${new Date().getTime()}`
-                firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+                const fRefC = firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE)
+                fRefC.get()
                 .then(response=>{
                     if(!response.empty){
                         const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(file)
@@ -93,19 +93,17 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                     url: url,
                                     name: nombreCatalogo
                                 }
-                                response.forEach(item=>{
-                                    item.ref.update({
+
+                                fRefC.update({
+                                    catalogo: obj
+                                }).then(r=>{
+                                    setItem(prev => ({
+                                        ...prev,
                                         catalogo: obj
-                                    }).then(r=>{
-                                        setItem(prev => ({
-                                            ...prev,
-                                            catalogo: obj
-                                        }))
-                                        setSubmiting(false)
-                                        toast.success("Acción exitosa", {autoClose: 3000})
-                                    })                                
-                                })                            
-                                
+                                    }))
+                                    setSubmiting(false)
+                                    toast.success("Acción exitosa", {autoClose: 3000})
+                                })                                
                             });
                         });
                     }else{
@@ -123,9 +121,10 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
         if(image.type === "image/png" || image.type === "image/jpg" || image.type === "image/svg" || image.type === "image/jpeg"){
             setSubmiting(true)
             let name = `${image.name}${new Date().getTime()}`
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+            const fRefF = firebaseDB.collection("lke_empresa").doc( process.env.REACT_APP_CLIENTE)
+            fRefF.get()
             .then(response=>{
-                if(!response.empty){
+                if(response.exists){
                     const uploadTask = storage.ref(`/linkcardempresarial/${name}`).put(image)
                     uploadTask.on("state_changed", console.log, console.error, () => {
                         storage
@@ -137,22 +136,20 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                                 key: name,
                                 url: url
                             }
-                            response.forEach(item=>{
-                                let ar = [...item.data().fotos]
-                                ar.push(obj)
-                                item.ref.update({
+
+                            //falta
+                            let ar = [...response.data().fotos]
+                            ar.push(obj)
+                            fRefF.update({
+                                fotos: ar
+                            }).then(r=>{
+                                setItem(prev => ({
+                                    ...prev,
                                     fotos: ar
-                                }).then(r=>{
-                                    setItem(prev => ({
-                                        ...prev,
-                                        fotos: ar
-                                    }))
-                                    setSubmiting(false)
-                                    toast.success("Acción exitosa", {autoClose: 3000})
-                                })
-                                
+                                }))
+                                setSubmiting(false)
+                                toast.success("Acción exitosa", {autoClose: 3000})
                             })                            
-                            
                           });
                       });
                 }else{
@@ -171,10 +168,11 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
             storage.ref('linkcardempresarial').child(key).delete()
             .then(response=>{
                 f.splice(i,1)
-                firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+                const fRefD = firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE)
+                fRefD.get()
                 .then(resp=>{
-                    resp.forEach(item=>{
-                        item.ref.update({
+                    if(resp.exists){
+                        fRefD.update({
                             fotos: f
                         }).then(r=>{
                             setItem(prev => ({
@@ -183,8 +181,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                             }))
                             setSubmiting(false)
                             toast.success("Acción exitosa", {autoClose: 3000})
-                        })                                
-                    })  
+                        })      
+                    }                     
                 })                
             });
         }
@@ -194,10 +192,11 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
         setSubmiting(true)
         storage.ref('linkcardempresarial').child(key).delete()
         .then(response=>{
-            firebaseDB.collection("lke_empresa").where("nombre", "==", process.env.REACT_APP_CLIENTE).limit(1).get()
+            const fRefEC = firebaseDB.collection("lke_empresa").doc(process.env.REACT_APP_CLIENTE)
+            fRefEC.get()
             .then(resp=>{
-                resp.forEach(item=>{
-                    item.ref.update({
+                if(resp.exists){
+                    fRefEC.update({
                         catalogo: {
                             key: null,
                             url: null,
@@ -214,8 +213,8 @@ export default function ImageFirebase({firebaseDB, item, setItem}){
                         }))
                         setSubmiting(false)
                         toast.success("Acción exitosa", {autoClose: 3000})
-                    })                                
-                })  
+                    })        
+                }                
             })                
         });
     }

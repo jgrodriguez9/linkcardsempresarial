@@ -67,7 +67,7 @@ function Statistics({auth, firebaseDB}){
 
         //ciudades para las ubicaciones
         const ciudadData = async () =>{
-            const citiesDB = firebaseDB.collection('lke_ciudad').doc("ciudades");
+            const citiesDB = firebaseDB.collection('lke_ciudad').doc(process.env.REACT_APP_CLIENTE);
             const citiesCollection = await citiesDB.get();
             //console.log(citiesCollection.data().items)
             setCiudades(citiesCollection.data().items);

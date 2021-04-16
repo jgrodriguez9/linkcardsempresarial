@@ -3,47 +3,47 @@ import { React } from "react";
 export const getUrl = (profile, icon) => {
     switch(icon){
         case 'site':
-            return `https://www.${profile}`
+            return `${profile}`
         case 'whatsapp':
-            return `https://api.whatsapp.com/send?phone=+521${profile.replace(/\s/g, '')}`
+            return `https://api.whatsapp.com/send?phone=${profile.replace(/\s/g, '')}`
         // case 'location':
         //     return `https://maps.google.com/maps?q=${profile}`
         case 'facebook':
-            return `https://www.facebook.com/${profile}` 
+            return `${profile}` 
         case 'twitter':
-            return `https://www.twitter.com/${profile}`
+            return `${profile}`
         case 'instagram':
-            return `https://www.instagram.com/${profile}`
+            return `${profile}`
         case 'youtube':
-            return `https://www.youtube.com/user/${profile}`
+            return `${profile}`
         case 'tiktok':
-            return `https://www.tiktok.com/${profile}`
+            return `${profile}`
         case 'linkedin':
-            return `https://www.linkedin.com/${profile}`
+            return `${profile}`
         case 'phone':
-            return profile
+            return `tel:${profile}`
         case 'mail':
             return `mailto:${profile}`
         case 'skype':
-            return `https://www.skype.com/${profile}`
+            return `${profile}`
         case 'pinterest':
-            return `https://www.pinterest.com/${profile}`
+            return `${profile}`
         case 'telegram':
-            return `https://www.telegram.com/${profile}`
+            return `${profile}`
         case 'soundcloud':
-            return `https://www.soundcloud.com/${profile}`
+            return `${profile}`
         case 'flickr':
-            return `https://www.flickr.com/${profile}`
+            return `${profile}`
         case 'tripadvisor':
-            return `https://www.tripadvisor.com/${profile}`
+            return `${profile}`
         case 'behance':
-            return `https://www.behance.com/${profile}`
+            return `${profile}`
         case 'vimeo':
-            return `https://www.vimeo.com/${profile}`
+            return `${profile}`
         case 'googleplus':
-            return `https://www.plus.google.com/${profile}`
+            return `${profile}`
         case 'spotify':
-            return `https://www.spotify.com/${profile}`
+            return `${profile}`
         default:
             return ''
     }

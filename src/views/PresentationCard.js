@@ -8,6 +8,7 @@ import PresentationMovil from '../components/PresentationMovil';
 import VCard from 'vcard-creator'
 import { getUrl } from '../utils/getUrl';
 import { LoaderFrontend } from '../loader/LoaderFrontend';
+import {isChrome,isIOS} from 'react-device-detect';
 
 export default function PresentationCard(){
     const mql = window.matchMedia('(max-width: 540px)');
@@ -16,6 +17,8 @@ export default function PresentationCard(){
     const { id } = useParams();
     const [item, setItem] = useState(null)
     const [cliente, setCliente] = useState(null)
+    const [urlFile, setUrlFile] = useState(null)
+    const storage = firebase.storage()
 
 
     useEffect(()=>{
@@ -43,33 +46,47 @@ export default function PresentationCard(){
                         direccion: doc.data().direccion,
                         cliente: doc.data().cliente,
                         pais: doc.data().pais,
-                    }      
+                    }    
                     setItem(doc.data())
                     //buscamos al cliente al cual pertenece
-                    firebaseDB.collection("lke_empresa").where("nombre", '==', doc.data().cliente).limit(1).get()
+                    const fRefP = firebaseDB.collection("lke_empresa").doc(doc.data().cliente)
+                    fRefP.get()
                     .then(r=>{
-                        if(!r.empty){
-                            r.forEach(i=>{
-                                setCliente(i.data())
-                            })
-
+                        if(r.exists){
+                            setCliente(r.data())
                             //new estaditicas
                             firebaseDB.collection("lke_estadisticas").add(d)
                             .then(response=>{
-                                setSubmiting(false)
+                                //test
+                                const nameKey = `${d.nombre.replaceAll(/\s/g,'')}${d.cliente}${d.tarjeta}.vcf`
+                                storage.ref('linkcardempresarialcard').child(nameKey).delete()
+                                .then(response=>{
+                                    console.log(response)
+                                    CreateVCard(d, r.data(), nameKey)
+                                    setSubmiting(false)
+                                })
+                                .catch(error=>{
+                                    //console.log('error')
+                                    //console.log(error)
+                                    //como no existe se crea uno nuevo y se guarda
+                                    CreateVCard(d, r.data(), nameKey)
+                                    setSubmiting(false)
+                                })
+                                //end test                                
                                 //console.log(response)                        
                             })
                             .catch(error=>{
                                 //console.log(error)
                             })
-                        }
-                        
+                        }                        
                     }).catch(error=>{
                         //console.log(error)
                     })
-                           
-                    
-                })                
+                })      
+                
+               
+                
+
             }else{
                 //console.log("empty")
             }
@@ -78,11 +95,12 @@ export default function PresentationCard(){
     },[]);
 
     const  handleClickSocial = (type, description)=>{
-        setSubmiting(true)
-        if(type==='phone' || type==='mail'){
-            setSubmiting(false)
+        //setSubmiting(true)
+        if(type==='cel' || type==='mail'){
+            //setSubmiting(false)
             openTab(description, type, mql.matches)
         }else{
+            openTab(description, type, mql.matches)
             firebaseDB.collection('lke_trabajador').where("tarjeta", '==', id).limit(1).get()
             .then(response=>{
                 response.forEach(elemento=>{
@@ -105,46 +123,59 @@ export default function PresentationCard(){
                             social_list: social
                         })
                     }
-                    setSubmiting(false)
-                    openTab(description, type, mql.matches)
+                    //setSubmiting(false)
+                    
                 })            
             })
         }
         
     }
     
-    const CreateVCard = () => {
-       // console.log(item)
-        const vCard = new VCard()
-        let lastname = `${item.nombre} ${item.apellidos}`
-        vCard.addName(lastname)
-        //vCard.addPhoto('https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black.png') 
-        // add work data
-        vCard.addCompany(item.cliente)
-        vCard.addJobtitle(item.puesto)
-        //vCard.addRole('Data Protection Officer')
-        //vCard.addEmail('info@jeroendesloovere.be')
-
-        if(item.celular && item.celular !== ""){
-            vCard.addPhoneNumber(item.celular, 'PREF;WORK')
-        }
-        
-        //vCard.addPhoneNumber(123456789, 'WORK')
-
-        //var dir = item.social_list.filter(item=>item.icon==='ciudad')
-        vCard.addAddress('', '', item.ciudad, item.pais, '', '', '')
-
-        cliente.social_list.filter(it=>it.description!=="").forEach(element => {
-            if(element.icon !=='phone' && element.description!==""){
-                vCard.addURL(getUrl(element.description, element.icon))
+    const CreateVCard = (it, cli, nameKey) => {
+            console.log(it)
+            console.log(cli)
+            console.log(nameKey)
+            const vCard = new VCard()
+            let lastname = `${it.nombre}`
+            vCard.addName(lastname)
+            //vCard.addPhoto('https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black.png') 
+            // add work data
+            vCard.addCompany(it.cliente)
+            vCard.addJobtitle(it.puesto)
+            //vCard.addRole('Data Protection Officer')
+            //vCard.addEmail('info@jeroendesloovere.be')
+    
+            if(it.celular && it.celular !== ""){
+                vCard.addPhoneNumber(it.celular, 'PREF;WORK')
             }
-        });
-
-        //console.log(vCard.toString())
-        const FileSaver = require('file-saver'); 
-        const blob = new Blob([ vCard.toString() ], {type: "text/x-vCard;charset=utf-8"});
-        FileSaver.saveAs(blob, `${lastname}.vcf`);
+            
+            //vCard.addPhoneNumber(123456789, 'WORK')
+    
+            //var dir = it.social_list.filter(it=>it.icon==='ciudad')
+            vCard.addAddress('', '', it.ciudad, it.pais, '', '', '')
+    
+            cli.social_list.filter(it=>it.description!=="").forEach(element => {
+                if(element.icon !=='phone' && element.description!==""){
+                    vCard.addURL(getUrl(element.description, element.icon))
+                }
+            });
+    
+            //console.log(vCard.toString())
+            const blob = new Blob([ vCard.toString() ], {type: "text/vCard;charset=utf-8"});
+            const uploadTask = storage.ref(`/linkcardempresarialcard/${nameKey}`).put(blob)
+            uploadTask.on("state_changed", console.log, console.error, () => {
+                storage
+                .ref("linkcardempresarialcard")
+                .child(nameKey)
+                .getDownloadURL()
+                .then((url) => {
+                       setUrlFile(url)                                           
+                });
+            });
+           
     };
+
+
    
     return (
         <>
@@ -154,13 +185,13 @@ export default function PresentationCard(){
                     item={item} 
                     cliente={cliente} 
                     handleClickSocial={handleClickSocial}
-                    CreateVCard={CreateVCard}
+                    urlFile={urlFile}
                 /> :
                 <PresentationDesktop 
                     item={item} 
                     cliente={cliente} 
                     handleClickSocial={handleClickSocial}
-                    CreateVCard={CreateVCard}
+                    urlFile={urlFile}
                 />
             }
 
